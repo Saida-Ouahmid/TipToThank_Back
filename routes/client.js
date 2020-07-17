@@ -2,10 +2,10 @@
 
 var express = require("express");
 var router = express.Router();
+const clientController = require("../controllers/client");
 
-/* GET home page. */
-router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" });
-});
+
+/* Post Inscription client */
+router.post("/register", clientController.register);
 
 module.exports = router;

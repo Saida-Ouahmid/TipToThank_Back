@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
-const clientSchema = new mongoose.Schema({
+const ClientSchema = new mongoose.Schema({
   gender: String,
   lastname: String,
   firstname: String,
@@ -22,4 +22,6 @@ const clientSchema = new mongoose.Schema({
   favoris: [{ restaurantName: String, link: String }],
 });
 
-module.exports = mongoose.model("Client", clientSchema);
+ClientSchema.plugin(uniqueValidator);
+
+module.exports = mongoose.model("Client", ClientSchema);
