@@ -1,15 +1,18 @@
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
-const clientSchema = new mongoose.Schema({
+/* Template schéma correspond à une collection MongoDB et définit la forme des documents au sein de cette collection*/
+
+const ClientSchema = new mongoose.Schema({
   gender: String,
   lastname: String,
   firstname: String,
   password: String,
   age: String,
   adress: String,
-  phone: Number,
-  email: String,
+  phone: String,
+  email: { type: String, unique: true },
+  /*check que notre email est bien unique */
   Historique: [
     {
       Montant: Number,
@@ -22,4 +25,7 @@ const clientSchema = new mongoose.Schema({
   favoris: [{ restaurantName: String, link: String }],
 });
 
-module.exports = mongoose.model("Client", clientSchema);
+/*  uniqueValidator verifie que 2 utilisateurs n'ont pas la même adresse mail */
+ClientSchema.plugin(uniqueValidator);
+
+module.exports = mongoose.model("Client", ClientSchema);
