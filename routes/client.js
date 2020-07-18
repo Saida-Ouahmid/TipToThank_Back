@@ -2,22 +2,24 @@
 
 var express = require("express");
 var router = express.Router();
+
+/*route for client infos*/
 const clientController = require("../controllers/client");
+const authentification = require("../middlewares/authentif");
 
-<<<<<<< HEAD
-/*route for users infos*/
-const clientController = require("../controllers/client");
-/*const authentification = require("../middlewares/authentif");*/
-
-/* PUT profil edit.*/
-router.put("/edit", /*authentification,*/ clientController.edit);
-
-/* DELETE profil delete.*/
-router.delete("/delete", /*authentification,*/ clientController.delete);
-=======
-
-/* Post Inscription client */
+/* POST Inscription client */
 router.post("/register", clientController.register);
->>>>>>> 353cc2259abbca1744923a753b22ad4c838a3762
+
+/*POST client data.*/
+router.post("/dataClient", authentification, clientController.dataClient);
+
+/* POST client login. */
+router.post("/login", clientController.login);
+
+/* PUT client edit.*/
+router.put("/edit", authentification, clientController.edit);
+
+/* DELETE client delete.*/
+router.delete("/delete", authentification, clientController.delete);
 
 module.exports = router;
