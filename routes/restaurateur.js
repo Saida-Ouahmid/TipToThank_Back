@@ -6,17 +6,17 @@ const restaurateurController = require("../controllers/restaurateur");
 const auth = require("../middlewares/auth");
 
 /* Routes Menu */
-router.get("/menu", restaurateurController.getMenu);
-router.post("/menu/add", restaurateurController.addMenu);
+router.get("/menu", auth, restaurateurController.getMenu);
+router.post("/menu/add", auth, restaurateurController.addMenu);
 
-router.delete("/menu/delete", restaurateurController.deleteMenu);
-router.put("/dailymenu/add", restaurateurController.addDailyMenu);
+router.delete("/menu/delete", auth, restaurateurController.deleteMenu);
+router.put("/dailymenu/add", auth, restaurateurController.addDailyMenu);
 
 /* Routes Inscription */
 router.post("/inscription", restaurateurController.inscription);
 /*Système de paiement !! */
 router.post("/login", restaurateurController.login);
-
+router.get("/verify", restaurateurController.verify);
 /**
  * APPEL DE ROUTES DE PROFIL
  */
@@ -28,17 +28,18 @@ router.get("/profil", auth, restaurateurController.getProfil);
 router.put("/profil/edit", auth, restaurateurController.editProfil);
 
 /* Appel du router de Recupération du QRCODE */
-/*router.get("/profil/qrcode");
+router.get("/profil/qrcode");
 
-/* Appel du router pour le désabonnement 
+/* Appel du router pour le désabonnement*/
+
 router.delete("/profil/unsubscribe");
 
 /**
  * APPEL DES ROUTES GESTION DE PERSONNEL
  */
 
-/* Appel du router validation d'affiliation
-router.post("/management/affiliation");*/
+/* Appel du router validation d'affiliation*/
+router.post("/management/affiliation");
 
 /* Appel du router pour récupérer la liste server */
 router.get(
@@ -58,7 +59,7 @@ router.put(
  * APPEL DES ROUTES CONNEXION
  */
 
-/*Appel du router pour la connexion 
-router.post("/connexion");*/
+/*Appel du router pour la connexion */
+router.post("/connexion");
 
 module.exports = router;

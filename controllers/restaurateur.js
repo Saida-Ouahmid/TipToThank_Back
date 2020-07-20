@@ -2,6 +2,7 @@ const Restaurateur = require("../model/Restaurateur");
 const Serveur = require("../model/Serveur");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 const restaurateurController = {
   /**
@@ -10,7 +11,7 @@ const restaurateurController = {
 
   /*Afficher les menus*/
   getMenu: (req, res, next) => {
-    Restaurateur.find({}, "menu", (err, data) => {
+    Restaurateur.find({ _id: req.user._id }, "menu", (err, data) => {
       if (err) {
         res.status(500).send("Une erreur s'est produite");
         return;
@@ -21,13 +22,15 @@ const restaurateurController = {
 
   /*Ajouter les menus*/
   addMenu: (req, res, next) => {
-    Restaurateur.updateMany(
-      { restaurantName: "Chez Lulu" },
+    Restaurateur.updateOne(
+      { _id: req.user._id },
       {
         $push: {
-          menu: [
+          "menu.otherMenu": [
             {
-              otherMenu: { picture: req.body.picture, label: req.body.label },
+              picture: req.body.picture,
+              label: req.body.label,
+              value: req.body.value,
             },
           ],
         },
@@ -41,20 +44,19 @@ const restaurateurController = {
         }
       }
     );
+    console;
   },
 
   /*Supprimer les menus*/
   deleteMenu: (req, res, next) => {
     Restaurateur.updateOne(
-      { restaurantName: "Chez Lulu" },
+      { _id: req.user._id },
       {
-        menu: [
-          {
-            $pull: {
-              drink: { picture: req.body.picture, label: req.body.label },
-            },
+        $pull: {
+          "menu.otherMenu": {
+            label: req.body.label,
           },
-        ],
+        },
       },
 
       (err) => {
@@ -73,15 +75,15 @@ const restaurateurController = {
   /*Ajouter le menu du jour */
   addDailyMenu: (req, res, next) => {
     Restaurateur.updateOne(
-      { restaurantName: "Chez Lulu" },
+      { _id: req.user._id },
       {
-        menu: [
-          {
-            dailyMenu: { picture: req.body.picture, label: req.body.label },
+        $set: {
+          "menu.dailyMenu": {
+            picture: req.body.picture,
+            label: req.body.label,
           },
-        ],
+        },
       },
-
       (err) => {
         if (err) {
           console.log(err);
@@ -134,6 +136,15 @@ const restaurateurController = {
           "Votre mot de passe doit comporter au minimum 8 caractères dont une minuscule, une majuscule, un chiffre et un caractère spécial.",
       });
     } else {
+      /*TEST ENVOI MAIL*/
+      let rand = new Array(10).fill("").reduce(
+        (accumulator) =>
+          accumulator +
+          Math.random()
+            .toString(36)
+            .replace(/[^a-z]+/g, "")
+            .substr(0, 5)
+      );
       const newRestaurateur = new Restaurateur({
         restaurantName: req.body.restaurantName,
         siret: req.body.siret,
@@ -148,6 +159,8 @@ const restaurateurController = {
         },
         serviceNumber: { noon: req.body.noon, evening: req.body.evening },
         logo: req.body.logo,
+        confirmed: false,
+        verificationId: rand,
       });
       newRestaurateur.save((err) => {
         if (err) {
@@ -162,7 +175,52 @@ const restaurateurController = {
           });
         }
       });
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL || "tiptotest@gmail.com",
+          pass: process.env.PASSWORD || "!TTTmdp51!",
+        },
+      });
+
+      link = "http://localhost:3000/restaurateur/verify?id=" + rand;
+      let mailOptions = {
+        from: "tiptotest@gmail.com",
+        to: req.body.email,
+        subject: "Nodemailer - Test",
+        html: "Wooohooo it works!!:<a href=" + link + ">Clique</a>",
+      };
+
+      transporter.sendMail(mailOptions, (err, data) => {
+        if (err) {
+          return console.log("Error occurs");
+        }
+        return console.log("Email sent!!!");
+      });
     }
+  },
+
+  verify: (req, res, next) => {
+    if (!req.query.id) {
+      res.status(404).json({ message: "Not found" });
+      return;
+    }
+    Restaurateur.updateOne(
+      { verificationId: req.query.id },
+      { $set: { confirmed: true, verificationId: null } },
+      (err, result) => {
+        if (err) {
+          res.status(417).json({ message: "erreur" });
+          return;
+        }
+        if (result.nModified == 0) {
+          res.status(404).json({ message: "Not found" });
+          return;
+        }
+        res.json({ message: "Email is been Successfully verified" });
+        console.log(result);
+      }
+    );
   },
 
   /*Récupération du profil du restaurateur connecté*/
@@ -230,6 +288,11 @@ const restaurateurController = {
       res.json({
         message:
           "Saisie incorrects. Veuillez ressaisir vos identifiants et mot de passe.",
+      });
+    } else if (Restaurateur.confirmed == false) {
+      res.status(417).json({
+        message:
+          "Veuillez confirmer votre adresse e-mail pour pouvoir vous connecter",
       });
     } else {
       /*comparaison email user et base de donnée si match ou pas */

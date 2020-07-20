@@ -17,28 +17,24 @@ const authentification = (req, res, next) => {
     if (req.body.userId && req.body.userId !== userId) {
       throw "Invalid user ID";
     } else {
-      Restaurateur.findOne(
-        { _id: userId },
-
-        (err, data) => {
-          if (err) {
-            res.status(500).json({
-              error: new Error("Internal server error"),
-            });
-            return;
-          }
-
-          if (!data) {
-            res.status(404).json({
-              error: new Error("Erreur d'authentification"),
-            });
-            return;
-          }
-
-          req.user = data;
-          next();
+      Restaurateur.findOne({ _id: userId }, (err, data) => {
+        if (err) {
+          res.status(500).json({
+            error: new Error("Internal server error"),
+          });
+          return;
         }
-      );
+
+        if (!data) {
+          res.status(404).json({
+            error: new Error("Erreur d'authentification"),
+          });
+          return;
+        }
+
+        req.user = data;
+        next();
+      });
     }
   } catch {
     res.status(401).json({
