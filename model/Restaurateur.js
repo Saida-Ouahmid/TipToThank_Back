@@ -1,13 +1,15 @@
 const mongoose = require("mongoose");
-const menu = new mongoose.Schema({
+
+const uniqueValidator = require("mongoose-unique-validator");
+
+const Menu = new mongoose.Schema({
   dailyMenu: { picture: String, label: String },
-  drink: [{ picture: String, label: String }],
-  otherMenu: [{ picture: String, label: String }],
+  otherMenu: [{ picture: String, label: String, value: String }],
 });
-const restaurateurSchema = new mongoose.Schema(
+const RestaurateurSchema = new mongoose.Schema(
   {
     restaurantName: String,
-    email: String,
+    email: { type: String, unique: true },
     password: String,
     siret: String,
     bossName: String,
@@ -17,12 +19,15 @@ const restaurateurSchema = new mongoose.Schema(
     serviceNumber: { noon: Boolean, evening: Boolean },
     logo: String,
     picture: [],
-    menu: [menu],
+    menu: Menu,
     qrCode: String,
+    confirmed: Boolean,
+    verificationId: String,
   },
   {
     collection: "restaurateurs",
   }
 );
+RestaurateurSchema.plugin(uniqueValidator);
 
-module.exports = mongoose.model("Restaurateur", restaurateurSchema);
+module.exports = mongoose.model("Restaurateur", RestaurateurSchema);
