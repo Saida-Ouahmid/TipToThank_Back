@@ -275,6 +275,11 @@ const restaurateurController = {
       );
     }
   },
+
+  /**
+   * LOGIN MOT DE PASSE
+   */
+
   login: (req, res, next) => {
     const verifEmail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
