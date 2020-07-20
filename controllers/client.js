@@ -2,9 +2,11 @@ const Client = require("../model/Client");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 /* Controller to register; get data of client; login; edit and delete client*/
 const clientController = {
+  /*INSCRIPTION*/
   register: (req, res, next) => {
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
@@ -26,8 +28,8 @@ const clientController = {
       typeof req.body.gender != "string" ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
-      mdp.test(password) ==
-        false /*check de format de saisie du pwd avec RegExp*/ ||
+      /*check de format de saisie du pwd avec RegExp*/
+
       typeof req.body.age != "string" ||
       typeof req.body.adress != "string" ||
       typeof req.body.phone != "string" ||
@@ -39,7 +41,21 @@ const clientController = {
         message:
           "Veuillez compléter les champs obligatoires et respecter le format de saisie.",
       });
+    } else if (mdp.test(password) == false) {
+      res.status(417);
+      res.json({
+        message: "Veuillez respecter le format de saisie du mot de passe.",
+      });
     } else {
+      /*ENVOI MAIL confirm insription*/
+      let rand = new Array(10).fill("").reduce(
+        (accumulator) =>
+          accumulator +
+          Math.random()
+            .toString(36)
+            .replace(/[^a-z]+/g, "")
+            .substr(0, 5)
+      );
       const newClient = new Client({
         gender: req.body.gender,
         lastname: req.body.lastname,
@@ -49,6 +65,8 @@ const clientController = {
         adress: req.body.adress,
         phone: req.body.phone,
         email: req.body.email,
+        confirmed: false,
+        verificationId: rand,
       });
 
       /*sauvegarde du nouveau client*/
@@ -65,12 +83,58 @@ const clientController = {
           });
         }
       });
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL || "tiptothank@gmail.com",
+          pass: process.env.PASSWORD || "tiptothankTTT",
+        },
+      });
+
+      link = "http://localhost:3000/client/verify?id=" + rand;
+      let mailOptions = {
+        from: "tiptothank@gmail.com",
+        to: req.body.email,
+        subject: "Nodemailer - Test",
+        html: "Wooohooo it works!!:<a href=" + link + ">Clique</a>",
+      };
+
+      transporter.sendMail(mailOptions, (err, data) => {
+        if (err) {
+          return console.log("Error occurs");
+        }
+        return console.log("Email sent!!!");
+      });
     }
   },
 
-  dataClient: (req, res, next) => {
+  verify: (req, res, next) => {
+    if (!req.query.id) {
+      res.status(404).json({ message: "Not found" });
+      return;
+    }
+    Client.updateOne(
+      { verificationId: req.query.id },
+      { $set: { confirmed: true, verificationId: null } },
+      (err, result) => {
+        if (err) {
+          res.status(417).json({ message: "erreur" });
+          return;
+        }
+        if (result.nModified == 0) {
+          res.status(404).json({ message: "Not found" });
+          return;
+        }
+        res.json({ message: "Email is been Successfully verified" });
+        console.log(result);
+      }
+    );
+  },
+  /*Récupération du profil du client connecté*/
+
+  getDataClient: (req, res, next) => {
     delete req.user.password; /*permet de ne pas afficher le password crypté*/
-    res.json(req.user); /*on request sous format json les données du user */
+    res.json(req.user); /*on request sous format json les données du client */
   },
 
   login: (req, res, next) => {

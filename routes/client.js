@@ -11,7 +11,7 @@ const authentification = require("../middlewares/authentif");
 router.post("/register", clientController.register);
 
 /*POST client data.*/
-router.post("/dataClient", authentification, clientController.dataClient);
+router.post("/dataClient", authentification, clientController.getDataClient);
 
 /* POST client login. */
 router.post("/login", clientController.login);
