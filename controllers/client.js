@@ -9,16 +9,18 @@ const clientController = {
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
     const mdp = RegExp(
-      "^(?=.?[A-Z])(?=.?[a-z])(?=.?[0-9])(?=.?[#?!@$%^&-]).{8,}$"
+      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^ws]).{8,}$"
     );
     const password = req.body.password;
     const hash = bcrypt.hashSync(req.body.password, 10); //10= nb de hasch
+
     /* - - - - - Directives pour le mdp - - - - 
-(?=.?[A-Z]) : Au moins une lettre majuscule  
-(?=.?[a-z]) : Au moins une lettre anglaise minuscule, 
-(?=.?[0-9]) : Au moins un chiffre, 
-(?=.?[#?!@$%^&-]) : Au moins un caractère spécial, 
-.{8,} Longueur minimale de huit (avec les ancres)*/
+                (?=.?[A-Z]) : Au moins une lettre majuscule  
+                (?=.?[a-z]) : Au moins une lettre anglaise minuscule, 
+                (?=.?[0-9]) : Au moins un chiffre, 
+                (?=.*?[^ws]) : Au moins un caractère spécial, 
+                .{8,} Longueur minimale de huit (avec les ancres)
+                          - - - - - - Directives pour le mdp - - - - - - - - */
 
     if (
       typeof req.body.gender != "string" ||
@@ -75,7 +77,7 @@ const clientController = {
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
     const mdp = RegExp(
-      "^(?=.?[A-Z])(?=.?[a-z])(?=.?[0-9])(?=.?[#?!@$%^&-]).{8,}$"
+      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^ws]).{8,}$"
     );
     const password = req.body.password;
     console.log(req.body);
@@ -131,18 +133,17 @@ const clientController = {
     }
   },
   edit: (req, res, next) => {
-    console.log(req.body);
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
     const mdp = RegExp(
-      "^(?=.?[A-Z])(?=.?[a-z])(?=.?[0-9])(?=.?[#?!@$%^&-]).{8,}$"
+      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^ws]).{8,}$"
     );
     const password = req.body.password;
     if (
       typeof req.body.gender != "string" ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
-      typeof req.body.password != "string" ||
+      mdp.test(password) == false ||
       (req.body.age && typeof req.body.age != "string") ||
       typeof req.body.adress != "string" ||
       (req.body.phone && typeof req.body.phone != "string") ||
@@ -157,12 +158,15 @@ const clientController = {
       Client.updateOne(
         /*Modif et mise à jour des données l'user repéré grace a son id */
         {
-          /* _id: req.user._id,*/ _id: "5f11b63f6b9d89398e113c30",
+          /* _id: req.user._id,*/
+
+          _id: "5f1564a2512c8217ffc87b8e",
         },
         {
           gender: req.body.gender,
           lastname: req.body.lastname,
           firstname: req.body.firstname,
+          password: req.body.password,
           age: req.body.age,
           adress: req.body.adress,
           phone: req.body.phone,
@@ -187,7 +191,7 @@ const clientController = {
     Client.deleteOne(
       {
         /*_id: req.user._id,*/
-        _id: "5f11b63f6b9d89398e113c30",
+        _id: "5f1564a2512c8217ffc87b8e",
       },
       (err) => {
         if (err) {

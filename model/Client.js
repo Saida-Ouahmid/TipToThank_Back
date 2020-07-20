@@ -31,7 +31,7 @@ const ClientSchema = new mongoose.Schema(
       },
     ],
   },
-  { collection: "user" }
+  { collection: "TestClientSaida" }
 );
 
 /*  uniqueValidator verifie que 2 utilisateurs n'ont pas la même adresse mail */
