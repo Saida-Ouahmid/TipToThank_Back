@@ -7,6 +7,7 @@ var indexRouter = require("./routes/index");
 var restaurateurRouter = require("./routes/restaurateur");
 var serveurRouter = require("./routes/serveur");
 var clientRouter = require("./routes/client");
+var cors = require("./middlewares/cors");
 
 //import de mongoose
 const mongoose = require("mongoose");
@@ -18,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-
+app.use(cors.handle);
 //data base connection
 mongoose.connect(
   "mongodb+srv://Bocal:cacahuete22%23@tiptothankdb.kqk7h.gcp.mongodb.net/dev?retryWrites=true&w=majority",
