@@ -1,11 +1,14 @@
 const Restaurateur = require("../model/Restaurateur");
 const Serveur = require("../model/Serveur");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const restaurateurController = {
   /**
    * PARTIE MENU
    */
+
+  /*Afficher les menus*/
   getMenu: (req, res, next) => {
     Restaurateur.find({}, "menu", (err, data) => {
       if (err) {
@@ -16,6 +19,7 @@ const restaurateurController = {
     });
   },
 
+  /*Ajouter les menus*/
   addMenu: (req, res, next) => {
     Restaurateur.updateMany(
       { restaurantName: "Chez Lulu" },
@@ -39,8 +43,7 @@ const restaurateurController = {
     );
   },
 
-  editMenu: (req, res, next) => {},
-
+  /*Supprimer les menus*/
   deleteMenu: (req, res, next) => {
     Restaurateur.updateOne(
       { restaurantName: "Chez Lulu" },
@@ -67,6 +70,7 @@ const restaurateurController = {
     );
   },
 
+  /*Ajouter le menu du jour */
   addDailyMenu: (req, res, next) => {
     Restaurateur.updateOne(
       { restaurantName: "Chez Lulu" },
@@ -96,6 +100,7 @@ const restaurateurController = {
    * PARTIE PROFIL
    */
 
+  /*Inscription*/
   inscription: (req, res, next) => {
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
@@ -216,6 +221,48 @@ const restaurateurController = {
           }
         }
       );
+    }
+  },
+  login: (req, res, next) => {
+    const verifEmail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
+    const email = req.body.email;
+    console.log(req.body);
+
+    if (
+      verifEmail.test(email) == false ||
+      typeof req.body.password != "string" /**check des formats emails et pwd */
+    ) {
+      res.status(417);
+      res.json({
+        message:
+          "Saisie incorrects. Veuillez ressaisir vos identifiants et mot de passe.",
+      });
+    } else {
+      /*comparaison email user et base de donnée si match ou pas */
+      Restaurateur.findOne({ email: req.body.email }, (err, data) => {
+        bcrypt.compare(req.body.password, data.password, (err, result) => {
+          if (err) {
+            console.log(err);
+            res.status(500).json({
+              message: "une erreur s'est produite",
+            }); /*erreur de saisie ou autre err*/
+          } else if (!data || !result) {
+            res.status(401).json({
+              message:
+                "Identifiant et/ou Mot de passe incorrects" /*donnée ne matche pas avec database*/,
+            });
+          } else {
+            res.status(200).json({
+              userId: data._id,
+              token: jwt.sign({ userId: data._id }, "RANDOM_TOKEN_SECRET", {
+                expiresIn: "24h",
+                /*durée de validité du Token, l'utilisateur devra se reconnecter au bout de 24h*/
+              }),
+              message: "Connexion Réussie !" /*good password */,
+            });
+          }
+        });
+      });
     }
   },
 
