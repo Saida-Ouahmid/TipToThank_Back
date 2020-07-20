@@ -4,13 +4,14 @@ var express = require("express");
 var router = express.Router();
 const restaurateurController = require("../controllers/restaurateur");
 const auth = require("../middlewares/auth");
+const multer = require("../middlewares/multer");
 
 /* Routes Menu */
 router.get("/menu", auth, restaurateurController.getMenu);
 router.post("/menu/add", auth, restaurateurController.addMenu);
 
 router.delete("/menu/delete", auth, restaurateurController.deleteMenu);
-router.put("/dailymenu/add", auth, restaurateurController.addDailyMenu);
+router.put("/dailymenu/add", multer, restaurateurController.addDailyMenu);
 
 /* Routes Inscription */
 router.post("/inscription", restaurateurController.inscription);

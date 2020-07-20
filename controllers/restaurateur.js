@@ -74,13 +74,16 @@ const restaurateurController = {
 
   /*Ajouter le menu du jour */
   addDailyMenu: (req, res, next) => {
+    console.log(req.file.path);
+
+    const filePath = req.file.path.replace("public", "");
     Restaurateur.updateOne(
-      { _id: req.user._id },
+      { restaurantName: "test1" },
       {
         $set: {
           "menu.dailyMenu": {
-            picture: req.body.picture,
-            label: req.body.label,
+            picture: filePath,
+            label: "Test1",
           },
         },
       },
