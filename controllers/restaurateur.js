@@ -263,6 +263,9 @@ const restaurateurController = {
           restaurantName: req.body.restaurantName,
           email: req.body.email,
           phone: req.body.phone,
+          bossName: req.body.bossName,
+          logo: req.body.logo,
+          adress: req.body.adress,
         },
         (err) => {
           if (err) {
