@@ -3,6 +3,7 @@
 var express = require("express");
 var router = express.Router();
 const restaurateurController = require("../controllers/restaurateur");
+const auth = require("../middlewares/auth");
 
 /* Routes Menu */
 router.get("/menu", restaurateurController.getMenu);
@@ -21,16 +22,17 @@ router.post("/login", restaurateurController.login);
  */
 
 /* Appel du router profil affichage */
-router.get("/profil", restaurateurController.getProfil);
+router.get("/profil", auth, restaurateurController.getProfil);
 
 /* Appel du router profil affichage */
-router.put("/profil/edit", restaurateurController.editProfil);
+router.put("/profil/edit", auth, restaurateurController.editProfil);
 
 /* Appel du router de Recupération du QRCODE */
 /*router.get("/profil/qrcode");
 
 /* Appel du router pour le désabonnement 
 router.delete("/profil/unsubscribe");
+
 /**
  * APPEL DES ROUTES GESTION DE PERSONNEL
  */
@@ -39,10 +41,18 @@ router.delete("/profil/unsubscribe");
 router.post("/management/affiliation");*/
 
 /* Appel du router pour récupérer la liste server */
-router.get("/management/waiter-list", restaurateurController.getWaiterList);
+router.get(
+  "/management/waiter-list",
+  auth,
+  restaurateurController.getWaiterList
+);
 
 /* Appel du router pour la suppression des serveurs */
-router.put("/management/waiter-delete", restaurateurController.deleteWaiter);
+router.put(
+  "/management/waiter-delete",
+  auth,
+  restaurateurController.deleteWaiter
+);
 
 /**
  * APPEL DES ROUTES CONNEXION

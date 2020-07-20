@@ -167,14 +167,8 @@ const restaurateurController = {
 
   /*Récupération du profil du restaurateur connecté*/
   getProfil: (req, res) => {
-    Restaurateur.find({}, "lastname firstname staff", (err, data) => {
-      if (err) {
-        res.status(500).end();
-      } else {
-        res.json(data);
-      }
-    });
-    /*res.json(req.user);*/
+    res.json(req.user);
+    /*permet de ne pas afficher le password crypté*/
   },
 
   /*Modification du profil du restaurateur connecté*/
@@ -182,13 +176,13 @@ const restaurateurController = {
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
     if (
-      typeof req.body.restaurantName != "string" ||
-      typeof req.body.email != "string" ||
+      typeof req.body.restaurantName != "string"
+      /*typeof req.body.email != "string" ||
       typeof req.body.bossName != "string" ||
       typeof req.body.adress != "string " ||
       (req.body.phone && typeof req.body.phone != "string") ||
       typeof req.body.logo != "string " ||
-      emailVerif.test(email) == false
+      emailVerif.test(email) == false*/
     ) {
       res.status(417);
       res.json({
@@ -199,7 +193,7 @@ const restaurateurController = {
       Restaurateur.updateOne(
         /*Modif et mise à jour des données l'user repéré grace a son id */
         {
-          _id: "5f11bb086b9d89398e118d4c",
+          _id: req.user.id,
         },
         {
           restaurantName: req.body.restaurantName,
@@ -294,7 +288,7 @@ const restaurateurController = {
   /*Suppression d'un serveur de son restaurant*/
   deleteWaiter: (req, res) => {
     Serveur.updateOne(
-      { _id: "5f11c96d6b9d89398e1294a4" },
+      { _id: req.body._id },
       { $unset: { restaurantName: "" } },
       (err, data) => {
         if (err) {
