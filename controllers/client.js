@@ -9,7 +9,7 @@ const clientController = {
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
     const mdp = RegExp(
-      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^ws]).{8,}$"
+      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
     );
     const password = req.body.password;
     const hash = bcrypt.hashSync(req.body.password, 10); //10= nb de hasch
@@ -77,7 +77,7 @@ const clientController = {
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
     const mdp = RegExp(
-      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^ws]).{8,}$"
+      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
     );
     const password = req.body.password;
     console.log(req.body);
@@ -136,7 +136,7 @@ const clientController = {
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
     const mdp = RegExp(
-      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^ws]).{8,}$"
+      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
     );
     const password = req.body.password;
     if (
@@ -160,7 +160,7 @@ const clientController = {
         {
           /* _id: req.user._id,*/
 
-          _id: "5f1564a2512c8217ffc87b8e",
+          _id: "5f11b5676b9d89398e112d9e",
         },
         {
           gender: req.body.gender,
