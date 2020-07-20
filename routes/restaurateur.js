@@ -2,10 +2,17 @@
 
 var express = require("express");
 var router = express.Router();
+const restaurateurController = require("../controllers/restaurateur");
 
-/* GET home page. */
-router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" });
-});
+/* Routes Menu */
+router.get("/menu", restaurateurController.getMenu);
+router.post("/menu/add", restaurateurController.addMenu);
+router.put("/menu/edit", restaurateurController.editMenu);
+router.delete("/menu/delete", restaurateurController.deleteMenu);
+router.put("/dailymenu/add", restaurateurController.addDailyMenu);
+
+/* Routes Inscription */
+router.post("/inscription", restaurateurController.inscription);
+/*Système de paiement !! */
 
 module.exports = router;
