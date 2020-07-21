@@ -24,14 +24,9 @@ const ClientSchema = new mongoose.Schema(
         RestaurantName: String,
       },
     ],
-    favoris: [
-      {
-        restaurantName: String,
-        link: String,
-      },
-    ],
+    favoris: [{ restaurantName: String, link: String }],
   },
-  { collection: "TestClientSaida" }
+  { collection: "clients" }
 );
 
 /*  uniqueValidator verifie que 2 utilisateurs n'ont pas la même adresse mail */

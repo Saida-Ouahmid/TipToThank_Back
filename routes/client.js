@@ -13,7 +13,7 @@ router.post("/register", clientController.register);
 /*POST client data.*/
 router.post("/getDataClient", authentification, clientController.getDataClient);
 
-/* POST client login. */
+/* POST profil login. */
 router.post("/login", clientController.login);
 
 /* PUT client edit.*/
