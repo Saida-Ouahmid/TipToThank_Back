@@ -3,7 +3,6 @@ const MIME_TYPES = {
   "image/jpg": "jpg",
   "image/jpeg": "jpg",
   "image/png": "png",
-  "image/pdf": "pdf",
 };
 
 /**
@@ -21,4 +20,4 @@ const storage = multer.diskStorage({
   },
 });
 
-module.exports = multer({ storage: storage }).array("picture", 10);
+module.exports = multer({ storage: storage }).single("file");

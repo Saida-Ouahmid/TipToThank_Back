@@ -11,7 +11,7 @@ router.get("/menu", auth, restaurateurController.getMenu);
 router.post("/menu/add", auth, restaurateurController.addMenu);
 
 router.delete("/menu/delete", auth, restaurateurController.deleteMenu);
-router.put("/dailymenu/add", multer, restaurateurController.addDailyMenu);
+router.put("/dailymenu/add", multer, auth, restaurateurController.addDailyMenu);
 
 /* Routes Inscription */
 router.post("/inscription", restaurateurController.inscription);
