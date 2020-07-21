@@ -23,10 +23,13 @@ const clientController = {
                 (?=.*?[^ws]) : Au moins un caractère spécial, 
                 .{8,} Longueur minimale de huit (avec les ancres)
                           - - - - - - Directives pour le mdp - - - - - - - - */
-
     if (
-      typeof req.body.firstname != "string" ||
+      (req.body.gender && typeof req.body.gender != "string") ||
       typeof req.body.lastname != "string" ||
+      typeof req.body.firstname != "string" ||
+      (req.body.age && typeof req.body.age != "string") ||
+      (req.body.adress && typeof req.body.adress != "string") ||
+      (req.body.phone && typeof req.body.phone != "string") ||
       cacahuete.test(email) ==
         false /*check de format de saisie de l'email avec RegExp*/
     ) {
@@ -41,8 +44,6 @@ const clientController = {
         message: "Veuillez respecter le format de saisie du mot de passe.",
       });
     } else {
-      /*ENVOI MAIL confirm insription*/
-
       const newClient = new Client({
         gender: req.body.gender,
         lastname: req.body.lastname,
@@ -53,7 +54,6 @@ const clientController = {
         phone: req.body.phone,
         email: req.body.email,
       });
-
       /*sauvegarde du nouveau client*/
       newClient.save((err) => {
         if (err) {
@@ -69,7 +69,8 @@ const clientController = {
           });
         } else {
           res.json({
-            message: "Votre inscription a bien été prise en compte. Merci.",
+            message:
+              "Votre inscription a bien été prise en compte, un e-mail de confirmation vient de vous être envoyé. Merci.",
           });
         }
       });
@@ -84,19 +85,21 @@ const clientController = {
       let mailOptions = {
         from: "tiptothank@gmail.com",
         to: req.body.email,
-        subject: "Nodemailer - Test",
-        html: "merci",
+        subject: "Confirmation de la création de votre compte client",
+        html:
+          "Félicitations ! Votre compte client Tip To Thank a bien été crées. Merci pour votre confiance !",
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
         if (err) {
           return console.log("Error occurs");
+        } else {
+          return console.log("L'e-mail de validation a bien été envoyé");
         }
-        return console.log("Email sent!!!");
       });
     }
   },
-
+  /*Récupération du profil du client connecté*/
   getDataClient: (req, res, next) => {
     delete req.user.password; /*permet de ne pas afficher le password crypté*/
     res.json(req.user); /*on request sous format json les données du client */
@@ -169,12 +172,12 @@ const clientController = {
     );
     const password = req.body.password;
     if (
-      typeof req.body.gender != "string" ||
+      (req.body.gender && typeof req.body.gender != "string") ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
       mdp.test(password) == false ||
       (req.body.age && typeof req.body.age != "string") ||
-      typeof req.body.adress != "string" ||
+      (req.body.adress && typeof req.body.adress != "string") ||
       (req.body.phone && typeof req.body.phone != "string") ||
       cacahuete.test(email) == false
     ) {

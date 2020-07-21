@@ -17,10 +17,8 @@ Request body: {
 --
 Response body: {
     "Merci pour votre inscription"
-}
+}      
 
-
-                             
 /*__________________________________________________*/
 /* Modification compte client           
 /****************************************************/
@@ -60,11 +58,7 @@ Request body: {
 Response body: {
     "Bonjour "firstname""
 }
-
-/****************************************************/
-
-/****************************************************/
-/* /                              
+                           
 /*__________________________________________________*/
 /* Supprimer son compte    
 /****************************************************/
@@ -80,9 +74,6 @@ Response body: {
 }
 
 /****************************************************/
-
-
-
 
 Schémas BDD
 
@@ -113,5 +104,7 @@ const clientSchema = new mongoose.Schema({
 ClientSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("Client", clientSchema);
+
+
 
 
