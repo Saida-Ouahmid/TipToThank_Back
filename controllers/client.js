@@ -24,8 +24,12 @@ const clientController = {
                 .{8,} Longueur minimale de huit (avec les ancres)
                           - - - - - - Directives pour le mdp - - - - - - - - */
     if (
+      (req.body.gender && typeof req.body.gender != "string") ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
+      (req.body.age && typeof req.body.age != "string") ||
+      (req.body.adress && typeof req.body.adress != "string") ||
+      (req.body.phone && typeof req.body.phone != "string") ||
       cacahuete.test(email) ==
         false /*check de format de saisie de l'email avec RegExp*/
     ) {
@@ -163,12 +167,12 @@ const clientController = {
     );
     const password = req.body.password;
     if (
-      typeof req.body.gender != "string" ||
+      (req.body.gender && typeof req.body.gender != "string") ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
       mdp.test(password) == false ||
       (req.body.age && typeof req.body.age != "string") ||
-      typeof req.body.adress != "string" ||
+      (req.body.adress && typeof req.body.adress != "string") ||
       (req.body.phone && typeof req.body.phone != "string") ||
       cacahuete.test(email) == false
     ) {
@@ -183,7 +187,7 @@ const clientController = {
         {
           /* _id: req.user._id,*/
 
-          _id: "5f11b5676b9d89398e112d9e",
+          _id: "5f16f36c4e91662a2bfbaa59",
         },
         {
           gender: req.body.gender,
@@ -214,7 +218,7 @@ const clientController = {
     Client.deleteOne(
       {
         /*_id: req.user._id,*/
-        _id: "5f1564a2512c8217ffc87b8e",
+        _id: "5f16f36c4e91662a2bfbaa59",
       },
       (err) => {
         if (err) {
@@ -228,67 +232,6 @@ const clientController = {
         }
       }
     );
-  },
-
-  dataClient: (req, res, next) => {
-    delete req.user.password; /*permet de ne pas afficher le password crypté*/
-    res.json(req.user); /*on request sous format json les données du user */
-  },
-
-  login: (req, res, next) => {
-    const mail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
-    const email = req.body.email;
-    console.log(req.body);
-
-    if (
-      mail.test(email) == false ||
-      typeof req.body.password != "string" /**check des formats emails et pwd */
-    ) {
-      res.status(417);
-      res.json({
-        message:
-          "Saisie incorrects. Veuillez ressaisir vos identifiants et mot de passe.",
-      });
-    } else {
-      /*comparaison email user et base de donnée si match ou pas */
-      Client.findOne({ email: req.body.email }, (err, data) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({
-            message: "une erreur s'est produite",
-          }); /*erreur de saisie ou autre err*/
-        } else if (!data) {
-          res.status(401).json({
-            message:
-              "Identifiant de connexion incorrect." /*donnée ne matche pas avec database*/,
-          });
-        } else {
-          /* quand utilisateur enfin ok => comparaison password avec bcrypt */
-          bcrypt.compare(req.body.password, data.password, (err, result) => {
-            if (err) {
-              console.log(err);
-              res.status(500).json({
-                message: "Une erreur s'est produite.",
-              }); /*erreur de saisie ou autre err*/
-            } else if (!result) {
-              res.status(401).json({
-                message:
-                  "Mot de passe incorrect." /*password ne matche pas avec database*/,
-              });
-            } else {
-              res.status(200).json({
-                userId: data._id,
-                token: jwt.sign({ userId: data._id }, "RANDOM_TOKEN_SECRET", {
-                  expiresIn: "24h",
-                  /*durée de validité du Token, l'utilisateur devra se reconnecter au bout de 24h*/
-                }),
-                message: "Connexion Réussie !" /*good password */,
-              });
-            }
-          });
-        }
-      });
-    }
   },
 };
 
