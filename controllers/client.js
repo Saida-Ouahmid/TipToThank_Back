@@ -23,16 +23,9 @@ const clientController = {
                 (?=.*?[^ws]) : Au moins un caractère spécial, 
                 .{8,} Longueur minimale de huit (avec les ancres)
                           - - - - - - Directives pour le mdp - - - - - - - - */
-
     if (
-      typeof req.body.gender != "string" ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
-      /*check de format de saisie du pwd avec RegExp*/
-
-      typeof req.body.age != "string" ||
-      typeof req.body.adress != "string" ||
-      typeof req.body.phone != "string" ||
       cacahuete.test(email) ==
         false /*check de format de saisie de l'email avec RegExp*/
     ) {
@@ -47,15 +40,6 @@ const clientController = {
         message: "Veuillez respecter le format de saisie du mot de passe.",
       });
     } else {
-      /*ENVOI MAIL confirm insription*/
-      let rand = new Array(10).fill("").reduce(
-        (accumulator) =>
-          accumulator +
-          Math.random()
-            .toString(36)
-            .replace(/[^a-z]+/g, "")
-            .substr(0, 5)
-      );
       const newClient = new Client({
         gender: req.body.gender,
         lastname: req.body.lastname,
@@ -65,10 +49,7 @@ const clientController = {
         adress: req.body.adress,
         phone: req.body.phone,
         email: req.body.email,
-        confirmed: false,
-        verificationId: rand,
       });
-
       /*sauvegarde du nouveau client*/
       newClient.save((err) => {
         if (err) {
@@ -79,7 +60,8 @@ const clientController = {
           });
         } else {
           res.json({
-            message: "Votre inscription a bien été prise en compte. Merci.",
+            message:
+              "Votre inscription a bien été prise en compte, un e-mail de confirmation vient de vous être envoyé. Merci.",
           });
         }
       });
@@ -91,47 +73,24 @@ const clientController = {
         },
       });
 
-      link = "http://localhost:3000/client/verify?id=" + rand;
       let mailOptions = {
         from: "tiptothank@gmail.com",
         to: req.body.email,
-        subject: "Nodemailer - Test",
-        html: "Wooohooo it works!!:<a href=" + link + ">Clique</a>",
+        subject: "Confirmation de la création de votre compte client",
+        html:
+          "Félicitations ! Votre compte client Tip To Thank a bien été crées. Merci pour votre confiance !",
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
         if (err) {
           return console.log("Error occurs");
+        } else {
+          return console.log("L'e-mail de validation a bien été envoyé");
         }
-        return console.log("Email sent!!!");
       });
     }
   },
-
-  verify: (req, res, next) => {
-    if (!req.query.id) {
-      res.status(404).json({ message: "Not found" });
-      return;
-    }
-    Client.updateOne(
-      { verificationId: req.query.id },
-      { $set: { confirmed: true, verificationId: null } },
-      (err, result) => {
-        if (err) {
-          res.status(417).json({ message: "erreur" });
-          return;
-        }
-        if (result.nModified == 0) {
-          res.status(404).json({ message: "Not found" });
-          return;
-        }
-        res.json({ message: "Email is been Successfully verified" });
-        console.log(result);
-      }
-    );
-  },
   /*Récupération du profil du client connecté*/
-
   getDataClient: (req, res, next) => {
     delete req.user.password; /*permet de ne pas afficher le password crypté*/
     res.json(req.user); /*on request sous format json les données du client */
