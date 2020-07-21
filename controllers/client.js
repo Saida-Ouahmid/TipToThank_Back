@@ -25,12 +25,8 @@ const clientController = {
                           - - - - - - Directives pour le mdp - - - - - - - - */
 
     if (
-      typeof req.body.gender != "string" ||
       typeof req.body.firstname != "string" ||
       typeof req.body.lastname != "string" ||
-      typeof req.body.age != "string" ||
-      typeof req.body.adress != "string" ||
-      typeof req.body.phone != "string" ||
       cacahuete.test(email) ==
         false /*check de format de saisie de l'email avec RegExp*/
     ) {
@@ -46,14 +42,7 @@ const clientController = {
       });
     } else {
       /*ENVOI MAIL confirm insription*/
-      let rand = new Array(10).fill("").reduce(
-        (accumulator) =>
-          accumulator +
-          Math.random()
-            .toString(36)
-            .replace(/[^a-z]+/g, "")
-            .substr(0, 5)
-      );
+
       const newClient = new Client({
         gender: req.body.gender,
         lastname: req.body.lastname,
@@ -63,8 +52,6 @@ const clientController = {
         adress: req.body.adress,
         phone: req.body.phone,
         email: req.body.email,
-        confirmed: false,
-        verificationId: rand,
       });
 
       /*sauvegarde du nouveau client*/
@@ -74,6 +61,11 @@ const clientController = {
           res.json({
             message:
               "L'e-mail saisi est déja lié à un compte. Veuillez vous connecter ou saisir une autre adresse mail.",
+          });
+        } else if (mdp.test(password) == false) {
+          res.status(417);
+          res.json({
+            message: "Veuillez respecter le format de saisie du mot de passe.",
           });
         } else {
           res.json({
@@ -89,12 +81,11 @@ const clientController = {
         },
       });
 
-      link = "http://localhost:3000/client/verify?id=" + rand;
       let mailOptions = {
         from: "tiptothank@gmail.com",
         to: req.body.email,
         subject: "Nodemailer - Test",
-        html: "Wooohooo it works!!:<a href=" + link + ">Clique</a>",
+        html: "merci",
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
@@ -105,30 +96,6 @@ const clientController = {
       });
     }
   },
-
-  verify: (req, res, next) => {
-    if (!req.query.id) {
-      res.status(404).json({ message: "Not found" });
-      return;
-    }
-    Client.updateOne(
-      { verificationId: req.query.id },
-      { $set: { confirmed: true, verificationId: null } },
-      (err, result) => {
-        if (err) {
-          res.status(417).json({ message: "erreur" });
-          return;
-        }
-        if (result.nModified == 0) {
-          res.status(404).json({ message: "Not found" });
-          return;
-        }
-        res.json({ message: "Email is been Successfully verified" });
-        console.log(result);
-      }
-    );
-  },
-  /*Récupération du profil du client connecté*/
 
   getDataClient: (req, res, next) => {
     delete req.user.password; /*permet de ne pas afficher le password crypté*/
@@ -222,7 +189,7 @@ const clientController = {
         {
           /* _id: req.user._id,*/
 
-          _id: "5f11b5676b9d89398e112d9e",
+          _id: "5f16f25f03bfa2298cf52f2e",
         },
         {
           gender: req.body.gender,
@@ -253,7 +220,7 @@ const clientController = {
     Client.deleteOne(
       {
         /*_id: req.user._id,*/
-        _id: "5f1564a2512c8217ffc87b8e",
+        _id: "5f16f25f03bfa2298cf52f2e",
       },
       (err) => {
         if (err) {
@@ -267,67 +234,6 @@ const clientController = {
         }
       }
     );
-  },
-
-  dataClient: (req, res, next) => {
-    delete req.user.password; /*permet de ne pas afficher le password crypté*/
-    res.json(req.user); /*on request sous format json les données du user */
-  },
-
-  login: (req, res, next) => {
-    const mail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
-    const email = req.body.email;
-    console.log(req.body);
-
-    if (
-      mail.test(email) == false ||
-      typeof req.body.password != "string" /**check des formats emails et pwd */
-    ) {
-      res.status(417);
-      res.json({
-        message:
-          "Saisie incorrects. Veuillez ressaisir vos identifiants et mot de passe.",
-      });
-    } else {
-      /*comparaison email user et base de donnée si match ou pas */
-      Client.findOne({ email: req.body.email }, (err, data) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({
-            message: "une erreur s'est produite",
-          }); /*erreur de saisie ou autre err*/
-        } else if (!data) {
-          res.status(401).json({
-            message:
-              "Identifiant de connexion incorrect." /*donnée ne matche pas avec database*/,
-          });
-        } else {
-          /* quand utilisateur enfin ok => comparaison password avec bcrypt */
-          bcrypt.compare(req.body.password, data.password, (err, result) => {
-            if (err) {
-              console.log(err);
-              res.status(500).json({
-                message: "Une erreur s'est produite.",
-              }); /*erreur de saisie ou autre err*/
-            } else if (!result) {
-              res.status(401).json({
-                message:
-                  "Mot de passe incorrect." /*password ne matche pas avec database*/,
-              });
-            } else {
-              res.status(200).json({
-                userId: data._id,
-                token: jwt.sign({ userId: data._id }, "RANDOM_TOKEN_SECRET", {
-                  expiresIn: "24h",
-                  /*durée de validité du Token, l'utilisateur devra se reconnecter au bout de 24h*/
-                }),
-                message: "Connexion Réussie !" /*good password */,
-              });
-            }
-          });
-        }
-      });
-    }
   },
 };
 
