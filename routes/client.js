@@ -2,15 +2,24 @@
 
 var express = require("express");
 var router = express.Router();
+
+/*route for client infos*/
 const clientController = require("../controllers/client");
 const authentification = require("../middlewares/authentif");
 
-/* Post Inscription client */
+/* POST Inscription client */
 router.post("/register", clientController.register);
+/*verification de l'email*/
+router.get("/verify", clientController.verify);
 
 router.post("/dataProfil", authentification, clientController.dataClient);
 
 /* POST profil login. */
 router.post("/login", clientController.login);
+/* PUT client edit.*/
+router.put("/edit", authentification, clientController.edit);
+/* DELETE client delete.*/
+
+router.delete("/delete", authentification, clientController.delete);
 
 module.exports = router;

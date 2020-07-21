@@ -19,7 +19,7 @@ const authentification = (req, res, next) => {
     } else {
       Client.findOne(
         { _id: userId },
-        "lastname firstname email adress age phone ",
+        " gender lastname firstname age adress phone email historique favoris ",
         (err, data) => {
           if (err) {
             res.status(500).json({
