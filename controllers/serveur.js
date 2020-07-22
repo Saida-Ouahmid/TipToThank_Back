@@ -54,6 +54,7 @@ const serveurController = {
         adress: req.body.adress,
         phone: req.body.phone,
         email: req.body.email,
+        staff: req.body.staff,
       });
 
       /*sauvegarde du nouveau Serveur*/
@@ -171,6 +172,7 @@ const serveurController = {
       typeof req.body.city != "string" ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
+      typeof req.body.staff != "string" ||
       mdp.test(password) == false ||
       (req.body.date && typeof req.body.date != "string") ||
       typeof req.body.adress != "string" ||
@@ -199,6 +201,7 @@ const serveurController = {
           adress: req.body.adress,
           phone: req.body.phone,
           email: req.body.email,
+          staff: req.body.staff,
         },
         (err) => {
           if (err) {
@@ -219,7 +222,7 @@ const serveurController = {
     Serveur.deleteOne(
       {
         /*_id: req.user._id,*/
-        _id: "5f1564a2512c8217ffc87b8e",
+        _id: "5f11c96d6b9d89398e1294a4",
       },
       (err) => {
         if (err) {
