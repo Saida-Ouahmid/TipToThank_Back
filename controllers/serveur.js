@@ -190,7 +190,7 @@ const serveurController = {
         {
           /* _id: req.user._id,*/
 
-          _id: "5f1708de751b5a4b3c208b0f",
+          _id: "5f18130fd733700fa02869e2",
         },
         {
           city: req.body.city,
@@ -222,7 +222,7 @@ const serveurController = {
     Serveur.deleteOne(
       {
         /*_id: req.user._id,*/
-        _id: "5f11c96d6b9d89398e1294a4",
+        _id: "5f1708de751b5a4b3c208b0f",
       },
       (err) => {
         if (err) {
@@ -236,67 +236,6 @@ const serveurController = {
         }
       }
     );
-  },
-
-  dataServeur: (req, res, next) => {
-    delete req.user.password; /*permet de ne pas afficher le password crypté*/
-    res.json(req.user); /*on request sous format json les données du user */
-  },
-
-  login: (req, res, next) => {
-    const mail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
-    const email = req.body.email;
-    console.log(req.body);
-
-    if (
-      mail.test(email) == false ||
-      typeof req.body.password != "string" /**check des formats emails et pwd */
-    ) {
-      res.status(417);
-      res.json({
-        message:
-          "Saisie incorrects. Veuillez ressaisir vos identifiants et mot de passe.",
-      });
-    } else {
-      /*comparaison email user et base de donnée si match ou pas */
-      Serveur.findOne({ email: req.body.email }, (err, data) => {
-        if (err) {
-          console.log(err);
-          res.status(500).json({
-            message: "une erreur s'est produite",
-          }); /*erreur de saisie ou autre err*/
-        } else if (!data) {
-          res.status(401).json({
-            message:
-              "Identifiant de connexion incorrect." /*donnée ne matche pas avec database*/,
-          });
-        } else {
-          /* quand utilisateur enfin ok => comparaison password avec bcrypt */
-          bcrypt.compare(req.body.password, data.password, (err, result) => {
-            if (err) {
-              console.log(err);
-              res.status(500).json({
-                message: "Une erreur s'est produite.",
-              }); /*erreur de saisie ou autre err*/
-            } else if (!result) {
-              res.status(401).json({
-                message:
-                  "Mot de passe incorrect." /*password ne matche pas avec database*/,
-              });
-            } else {
-              res.status(200).json({
-                userId: data._id,
-                token: jwt.sign({ userId: data._id }, "RANDOM_TOKEN_SECRET", {
-                  expiresIn: "24h",
-                  /*durée de validité du Token, l'utilisateur devra se reconnecter au bout de 24h*/
-                }),
-                message: "Connexion Réussie !" /*good password */,
-              });
-            }
-          });
-        }
-      });
-    }
   },
 };
 
