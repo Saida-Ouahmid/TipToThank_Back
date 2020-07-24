@@ -116,7 +116,7 @@ const restaurateurController = {
 
     if (
       typeof req.body.restaurantName != "string" ||
-      typeof req.body.siret != "string" ||
+      typeof req.body.bossFirstName != "string" ||
       typeof req.body.phone != "string" ||
       typeof req.body.bossName != "string" ||
       typeof req.body.adress != "string" ||
@@ -149,7 +149,7 @@ const restaurateurController = {
       );
       const newRestaurateur = new Restaurateur({
         restaurantName: req.body.restaurantName,
-        siret: req.body.siret,
+        bossFirstName: req.body.bossFirstName,
         phone: req.body.phone,
         email: req.body.email,
         password: hash /*mdp hashé*/,
@@ -185,7 +185,7 @@ const restaurateurController = {
         },
       });
 
-      link = "http://localhost:3000/restaurateur/verify?id=" + rand;
+      link = "http://localhost:8080/restaurateur/verify?id=" + rand;
       let mailOptions = {
         from: "tiptotest@gmail.com",
         to: req.body.email,
@@ -230,24 +230,47 @@ const restaurateurController = {
     res.json(req.user);
     /*permet de ne pas afficher le password crypté*/
   },
+  getLogo: (req, res, next) => {
+    const filePath = req.file.path.replace("public", "");
+    Restaurateur.updateOne(
+      { _id: req.user._id },
+      {
+        $set: {
+          logo: filePath,
+        },
+      },
+
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.json({ message: "une erreur s'est produite" });
+        } else {
+          res.json({
+            message: "Photo ok ",
+          });
+          console.log(req.body.logo);
+          console.log(req.file.path);
+        }
+      }
+    );
+  },
 
   /*Modification du profil du restaurateur connecté*/
   editProfil: (req, res, next) => {
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
-    const email = req.body.email;
+
     if (
-      typeof req.body.restaurantName != "string"
-      /*typeof req.body.email != "string" ||
+      typeof req.body.restaurantName != "string" ||
+      typeof req.body.bossFirstName != "string" ||
       typeof req.body.bossName != "string" ||
-      typeof req.body.adress != "string " ||
-      (req.body.phone && typeof req.body.phone != "string") ||
-      typeof req.body.logo != "string " ||
-      emailVerif.test(email) == false*/
+      typeof req.body.phone != "string" ||
+      typeof req.body.adress != "string" ||
+      emailVerif.test(req.body.email) == false
     ) {
       res.status(417);
       res.json({
         message:
-          "Veuillez compléter les champs au bon format pour confirmer la modification de votre profil.",
+          "Veuillez compléter les champs obligatoires et respecter le format de saisie.",
       });
     } else {
       Restaurateur.updateOne(
@@ -260,8 +283,9 @@ const restaurateurController = {
           email: req.body.email,
           phone: req.body.phone,
           bossName: req.body.bossName,
-          logo: req.body.logo,
+
           adress: req.body.adress,
+          bossFirstName: req.body.bossFirstName,
         },
         (err) => {
           if (err) {
@@ -285,7 +309,6 @@ const restaurateurController = {
   login: (req, res, next) => {
     const verifEmail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
-    console.log(req.body);
 
     if (
       verifEmail.test(email) == false ||

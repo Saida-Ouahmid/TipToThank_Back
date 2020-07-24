@@ -11,7 +11,7 @@ const RestaurateurSchema = new mongoose.Schema(
     restaurantName: String,
     email: { type: String, unique: true },
     password: String,
-    siret: String,
+    bossFirstName: String,
     bossName: String,
     adress: String,
     location: { longitude: String, latitude: String },
