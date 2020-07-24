@@ -5,16 +5,28 @@ var router = express.Router();
 const restaurateurController = require("../controllers/restaurateur");
 const auth = require("../middlewares/auth");
 const multer = require("../middlewares/multer");
+let uploadsingle = multer.single("file");
+let upload = multer.array("file", 10);
 
 /* Routes Menu */
 router.get("/menu", auth, restaurateurController.getMenu);
-router.post("/menu/add", auth, restaurateurController.addMenu);
+router.post("/menu/add", upload, auth, restaurateurController.addMenu);
 
 router.delete("/menu/delete", auth, restaurateurController.deleteMenu);
-router.put("/dailymenu/add", multer, auth, restaurateurController.addDailyMenu);
+router.put(
+  "/dailymenu/add",
+  uploadsingle,
+  auth,
+  restaurateurController.addDailyMenu
+);
+router.delete(
+  "/dailymenu/delete",
+  auth,
+  restaurateurController.deleteDailyMenu
+);
 
 /* Routes Inscription */
-router.post("/inscription", restaurateurController.inscription);
+router.post("/inscription", uploadsingle, restaurateurController.inscription);
 /*Système de paiement !! */
 router.post("/login", restaurateurController.login);
 router.get("/verify", restaurateurController.verify);

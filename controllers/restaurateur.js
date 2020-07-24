@@ -3,6 +3,7 @@ const Serveur = require("../model/Serveur");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const date = require("date-and-time");
 
 const restaurateurController = {
   /**
@@ -11,7 +12,7 @@ const restaurateurController = {
 
   /*Afficher les menus*/
   getMenu: (req, res, next) => {
-    Restaurateur.find({ _id: req.user._id }, "menu", (err, data) => {
+    Restaurateur.findOne({ _id: req.user._id }, "menu", (err, data) => {
       if (err) {
         res.status(500).send("Une erreur s'est produite");
         return;
@@ -22,29 +23,32 @@ const restaurateurController = {
 
   /*Ajouter les menus*/
   addMenu: (req, res, next) => {
-    Restaurateur.updateOne(
-      { _id: req.user._id },
-      {
-        $push: {
-          "menu.otherMenu": [
-            {
-              picture: req.body.picture,
-              label: req.body.label,
-              value: req.body.value,
-            },
-          ],
+    req.files.forEach((e) => {
+      const filePath = e.path.replace("public", "");
+      Restaurateur.updateOne(
+        { _id: req.user._id },
+        {
+          $push: {
+            "menu.otherMenu": [
+              {
+                picture: filePath,
+                label: req.body.label,
+                value: req.body.value,
+              },
+            ],
+          },
         },
-      },
-      (err) => {
-        if (err) {
-          console.log(err);
-          res.json({ message: "Une erreur s'est produite" });
-        } else {
-          res.json({ message: "Votre nouveau menu a bien été ajouté" });
+        (err) => {
+          if (err) {
+            return res.json({ message: "Une erreur s'est produite" });
+          } else {
+            return res.json({
+              message: "Votre nouveau menu a bien été ajouté",
+            });
+          }
         }
-      }
-    );
-    console;
+      );
+    });
   },
 
   /*Supprimer les menus*/
@@ -54,7 +58,7 @@ const restaurateurController = {
       {
         $pull: {
           "menu.otherMenu": {
-            label: req.body.label,
+            picture: req.body.picture,
           },
         },
       },
@@ -76,13 +80,14 @@ const restaurateurController = {
   addDailyMenu: (req, res, next) => {
     console.log(req.file.path);
     const filePath = req.file.path.replace("public", "");
+    const now = new Date();
     Restaurateur.updateOne(
       { _id: req.user._id },
       {
         $set: {
           "menu.dailyMenu": {
             picture: filePath,
-            label: "Test1",
+            label: date.format(now, "DD/MM/YYYY"),
           },
         },
       },
@@ -100,12 +105,37 @@ const restaurateurController = {
     );
   },
 
+  deleteDailyMenu: (req, res, next) => {
+    Restaurateur.updateOne(
+      { _id: req.user._id },
+      {
+        $set: {
+          "menu.dailyMenu": {
+            picture: "",
+            label: "",
+          },
+        },
+      },
+
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.json({ message: "une erreur s'est produite" });
+        } else {
+          res.json({
+            message: "Votre menu a bien été supprimé",
+          });
+        }
+      }
+    );
+  },
   /**
    * PARTIE PROFIL
    */
 
   /*Inscription*/
   inscription: (req, res, next) => {
+    const filePath = req.file.path.replace("public", "");
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
       "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
@@ -116,14 +146,9 @@ const restaurateurController = {
 
     if (
       typeof req.body.restaurantName != "string" ||
-      typeof req.body.siret != "string" ||
       typeof req.body.phone != "string" ||
       typeof req.body.bossName != "string" ||
       typeof req.body.adress != "string" ||
-      typeof req.body.longitude != "string" ||
-      typeof req.body.latitude != "string" ||
-      typeof req.body.noon != "boolean" ||
-      typeof req.body.evening != "boolean" ||
       emailVerif.test(req.body.email) == false
     ) {
       res.status(417);
@@ -159,8 +184,11 @@ const restaurateurController = {
           longitude: req.body.longitude,
           latitude: req.body.latitude,
         },
-        serviceNumber: { noon: req.body.noon, evening: req.body.evening },
-        logo: req.body.logo,
+        serviceNumber: {
+          noon: req.body.noon === "on",
+          evening: req.body.evening === "on",
+        },
+        logo: filePath,
         confirmed: false,
         verificationId: rand,
       });
@@ -185,7 +213,7 @@ const restaurateurController = {
         },
       });
 
-      link = "http://localhost:3000/restaurateur/verify?id=" + rand;
+      link = "http://localhost:8080/restaurateur/verify?id=" + rand;
       let mailOptions = {
         from: "tiptotest@gmail.com",
         to: req.body.email,
