@@ -5,7 +5,7 @@ var router = express.Router();
 
 /*route for serveur infos*/
 const serveurController = require("../controllers/serveur");
-const authentification = require("../middlewares/authentif");
+const authentification = require("../middlewares/auth");
 
 /* POST Inscription serveur */
 router.post("/register", serveurController.register);
