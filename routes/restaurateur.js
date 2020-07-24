@@ -39,6 +39,7 @@ router.get("/profil", auth, restaurateurController.getProfil);
 
 /* Appel du router profil affichage */
 router.put("/profil/edit", auth, restaurateurController.editProfil);
+router.put("/profil/edit/logo", auth, multer, restaurateurController.getLogo);
 
 /* Appel du router de Recupération du QRCODE */
 router.get("/profil/qrcode");
