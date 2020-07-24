@@ -399,13 +399,17 @@ const restaurateurController = {
 
   /*Récupération de la liste des serveurs*/
   getWaiterList: (req, res) => {
-    Serveur.find({}, "lastname firstname staff", (err, data) => {
-      if (err) {
-        res.status(500).end();
-      } else {
-        res.json(data);
+    Serveur.find(
+      { restaurantId: req.user._id },
+      "lastname firstname staff",
+      (err, data) => {
+        if (err) {
+          res.status(500).end();
+        } else {
+          res.json(data);
+        }
       }
-    });
+    );
   },
   /*Suppression d'un serveur de son restaurant*/
   deleteWaiter: (req, res) => {
