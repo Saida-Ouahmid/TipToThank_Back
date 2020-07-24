@@ -298,6 +298,11 @@ const serveurController = {
       });
     }
   },
+
+  /* Controller d'affichage profil*/
+  afficherProfil: (req, res) => {
+    res.json(req.Serveur);
+  },
 };
 
 module.exports = serveurController;
