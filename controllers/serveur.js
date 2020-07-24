@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
-/* Controller to register; get data of client; login; edit and delete client*/
+/* Controller to register; get data of serveur; login; edit and delete serveur*/
 const serveurController = {
   /*INSCRIPTION*/
   register: (req, res, next) => {
@@ -28,7 +28,7 @@ const serveurController = {
       typeof req.body.city != "string" ||
       typeof req.body.firstname != "string" ||
       typeof req.body.lastname != "string" ||
-      typeof req.body.date != "date" ||
+      typeof req.body.date != "string" ||
       typeof req.body.adress != "string" ||
       typeof req.body.staff != "string" ||
       cacahuete.test(email) ==
@@ -45,15 +45,6 @@ const serveurController = {
         message: "Veuillez respecter le format de saisie du mot de passe.",
       });
     } else {
-      /*ENVOI MAIL confirm insription*/
-      let rand = new Array(10).fill("").reduce(
-        (accumulator) =>
-          accumulator +
-          Math.random()
-            .toString(36)
-            .replace(/[^a-z]+/g, "")
-            .substr(0, 5)
-      );
       const newServeur = new Serveur({
         city: req.body.city,
         lastname: req.body.lastname,
@@ -63,8 +54,7 @@ const serveurController = {
         adress: req.body.adress,
         phone: req.body.phone,
         email: req.body.email,
-        confirmed: false,
-        verificationId: rand,
+        staff: req.body.staff,
       });
 
       /*sauvegarde du nouveau Serveur*/
@@ -89,12 +79,11 @@ const serveurController = {
         },
       });
 
-      link = "http://localhost:3000/client/verify?id=" + rand;
       let mailOptions = {
         from: "tiptothank@gmail.com",
         to: req.body.email,
         subject: "Nodemailer - Test",
-        html: "Wooohooo it works!!:<a href=" + link + ">Clique</a>",
+        html: "Felicitation votre compte serveur à bien été crée !",
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
@@ -106,33 +95,11 @@ const serveurController = {
     }
   },
 
-  verify: (req, res, next) => {
-    if (!req.query.id) {
-      res.status(404).json({ message: "Not found" });
-      return;
-    }
-    Serveur.updateOne(
-      { verificationId: req.query.id },
-      { $set: { confirmed: true, verificationId: null } },
-      (err, result) => {
-        if (err) {
-          res.status(417).json({ message: "erreur" });
-          return;
-        }
-        if (result.nModified == 0) {
-          res.status(404).json({ message: "Not found" });
-          return;
-        }
-        res.json({ message: "Email is been Successfully verified" });
-        console.log(result);
-      }
-    );
-  },
   /*Récupération du profil du serveur connecté*/
 
   getDataServeur: (req, res, next) => {
     delete req.user.password; /*permet de ne pas afficher le password crypté*/
-    res.json(req.user); /*on request sous format json les données du client */
+    res.json(req.user); /*on request sous format json les données du serveur */
   },
 
   login: (req, res, next) => {
@@ -205,6 +172,7 @@ const serveurController = {
       typeof req.body.city != "string" ||
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
+      typeof req.body.staff != "string" ||
       mdp.test(password) == false ||
       (req.body.date && typeof req.body.date != "string") ||
       typeof req.body.adress != "string" ||
@@ -222,7 +190,7 @@ const serveurController = {
         {
           /* _id: req.user._id,*/
 
-          _id: "5f11b5676b9d89398e112d9e",
+          _id: "5f1708de751b5a4b3c208b0f",
         },
         {
           city: req.body.city,
@@ -233,6 +201,7 @@ const serveurController = {
           adress: req.body.adress,
           phone: req.body.phone,
           email: req.body.email,
+          staff: req.body.staff,
         },
         (err) => {
           if (err) {
@@ -253,7 +222,7 @@ const serveurController = {
     Serveur.deleteOne(
       {
         /*_id: req.user._id,*/
-        _id: "5f1564a2512c8217ffc87b8e",
+        _id: "5f11c96d6b9d89398e1294a4",
       },
       (err) => {
         if (err) {

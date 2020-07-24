@@ -9,17 +9,15 @@ const authentification = require("../middlewares/auth");
 
 /* POST Inscription serveur */
 router.post("/register", serveurController.register);
-/*verification de l'email*/
-router.get("/verify", serveurController.verify);
 
-router.post("/dataProfil", authentification, serveurController.dataServeur);
+router.post("/dataServeur", authentification, serveurController.dataServeur);
 
 /* POST profil login. */
 router.post("/login", serveurController.login);
 /* PUT serveur edit.*/
-router.put("/edit", authentification, serveurController.edit);
+router.put("/edit", /*authentification,*/ serveurController.edit);
 /* DELETE serveur delete.*/
 
-router.delete("/delete", authentification, serveurController.delete);
+router.delete("/delete", /*authentification,*/ serveurController.delete);
 
 module.exports = router;
