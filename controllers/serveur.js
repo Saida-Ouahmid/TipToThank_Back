@@ -197,7 +197,6 @@ const serveurController = {
           lastname: req.body.lastname,
           firstname: req.body.firstname,
           password: req.body.password,
-          date: req.body.date,
           adress: req.body.adress,
           phone: req.body.phone,
           email: req.body.email,
