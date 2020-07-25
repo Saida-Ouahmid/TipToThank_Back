@@ -120,7 +120,6 @@ const restaurateurController = {
 
   /*Inscription*/
   inscription: (req, res, next) => {
-    const filePath = req.file.path.replace("public", "");
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
       "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
@@ -158,6 +157,7 @@ const restaurateurController = {
             .replace(/[^a-z]+/g, "")
             .substr(0, 5)
       );
+
       const newRestaurateur = new Restaurateur({
         restaurantName: req.body.restaurantName,
         bossFirstName: req.body.bossFirstName,
@@ -174,7 +174,8 @@ const restaurateurController = {
           noon: req.body.noon === "on",
           evening: req.body.evening === "on",
         },
-        logo: filePath,
+        logo: "/images/logo-init.png",
+        menu: { dailyMenu: { picture: "", label: "" }, otherMenu: [] },
         confirmed: false,
         verificationId: rand,
       });
