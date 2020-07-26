@@ -160,21 +160,14 @@ const clientController = {
     }
   },
   edit: (req, res, next) => {
-    const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
-    const email = req.body.email;
-    const mdp = RegExp(
-      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
-    );
-    const password = req.body.password;
+    /**on ne donne pas  au client l'option d'editer son email et pwd sinon plus d'authentif id */
     if (
-      (req.body.gender && typeof req.body.gender != "string") ||
-      typeof req.body.lastname != "string" ||
-      typeof req.body.firstname != "string" ||
-      mdp.test(password) == false ||
-      (req.body.age && typeof req.body.age != "string") ||
-      (req.body.adress && typeof req.body.adress != "string") ||
-      (req.body.phone && typeof req.body.phone != "string") ||
-      cacahuete.test(email) == false
+      (req.body.gender && typeof req.body.client.gender != "string") ||
+      typeof req.body.client.lastname != "string" ||
+      typeof req.body.client.firstname != "string" ||
+      (req.body.age && typeof req.body.client.age != "string") ||
+      (req.body.adress && typeof req.body.client.adress != "string") ||
+      (req.body.phone && typeof req.body.client.phone != "string")
     ) {
       res.status(417);
       res.json({
@@ -183,21 +176,19 @@ const clientController = {
       });
     } else {
       Client.updateOne(
-        /*Modif et mise à jour des données l'user repéré grace a son id */
+        /*Modif et mise à jour des données de l'user repéré grace a son id */
         {
-          /* _id: req.user._id,*/
-
-          _id: "5f16f36c4e91662a2bfbaa59",
+          _id: req.user._id,
         },
         {
-          gender: req.body.gender,
-          lastname: req.body.lastname,
-          firstname: req.body.firstname,
-          password: req.body.password,
-          age: req.body.age,
-          adress: req.body.adress,
-          phone: req.body.phone,
-          email: req.body.email,
+          gender: req.body.client.gender,
+          lastname: req.body.client.lastname,
+          firstname: req.body.client.firstname,
+          password: req.body.client.password,
+          age: req.body.client.age,
+          adress: req.body.client.adress,
+          phone: req.body.client.phone,
+          email: req.body.client.email,
         },
         (err) => {
           if (err) {
@@ -217,8 +208,7 @@ const clientController = {
   delete: (req, res, next) => {
     Client.deleteOne(
       {
-        /*_id: req.user._id,*/
-        _id: "5f16f36c4e91662a2bfbaa59",
+        _id: req.user._id,
       },
       (err) => {
         if (err) {
@@ -236,3 +226,30 @@ const clientController = {
 };
 
 module.exports = clientController;
+/*
+1. lien vers une page de Reset
+      -> front : champ dans lequel taper e-mail
+      -> champ : type compte (serveur, restaurateur, client)
+      -> bouton envoi
+
+      FRONT fetch vers BACK
+
+2. création d'un reset link (token de réinitialisation aléatoire) avec crypto
+
+3. Envoi e-mail
+    -> lien de reset "http://site/reset?token=2ghdybdd5vdgdk"
+
+    LIEN envoi vers page FRONT
+
+4. Deux input 
+    -> email
+    -> new password
+    -> bouton validation
+
+    Envoi données vers BACK
+
+5. Trois données recus sur le BACK :
+    -> email
+    -> new password
+    -> token
+Grace à email et token une requête peut être envoyé à la base de données pour trouver le user et actualisé le nouveau mtp hashé .*/
