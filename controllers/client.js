@@ -160,7 +160,7 @@ const clientController = {
     }
   },
   edit: (req, res, next) => {
-    /**on ne donne pas  au client l'option d'editer son email et pwd sinon plus d'authentif id */
+    /**on ne donne pas au client l'option d'editer son email et pwd sinon plus d'authentif id */
     if (
       (req.body.gender && typeof req.body.client.gender != "string") ||
       typeof req.body.client.lastname != "string" ||
@@ -184,11 +184,9 @@ const clientController = {
           gender: req.body.client.gender,
           lastname: req.body.client.lastname,
           firstname: req.body.client.firstname,
-          password: req.body.client.password,
           age: req.body.client.age,
           adress: req.body.client.adress,
           phone: req.body.client.phone,
-          email: req.body.client.email,
         },
         (err) => {
           if (err) {
