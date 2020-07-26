@@ -62,6 +62,11 @@ const clientController = {
             message:
               "L'e-mail saisi est déja lié à un compte. Veuillez vous connecter ou saisir une autre adresse mail.",
           });
+        } else if (mdp.test(password) == false) {
+          res.status(417);
+          res.json({
+            message: "Veuillez respecter le format de saisie du mot de passe.",
+          });
         } else {
           res.json({
             message:
