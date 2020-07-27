@@ -97,7 +97,7 @@ const serveurController = {
 
   /*Récupération du profil du serveur connecté*/
 
-  getDataServeur: (req, res, next) => {
+  getServeur: (req, res, next) => {
     delete req.user.password; /*permet de ne pas afficher le password crypté*/
     res.json(req.user); /*on request sous format json les données du serveur */
   },
