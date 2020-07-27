@@ -12,6 +12,8 @@ router.post("/register", serveurController.register);
 
 router.get("/monProfil", authentification, serveurController.getServeur);
 
+router.post("/dataProfil", authentification, serveurController.getServeur);
+
 /* POST profil login. */
 router.post("/login", serveurController.login);
 

@@ -173,6 +173,8 @@ const serveurController = {
       typeof req.body.lastname != "string" ||
       typeof req.body.firstname != "string" ||
       typeof req.body.staff != "string" ||
+      typeof req.body.adress != "string" ||
+      typeof req.body.tel != "string" ||
       mdp.test(password) == false ||
       (req.body.date && typeof req.body.date != "string") ||
       typeof req.body.adress != "string" ||
