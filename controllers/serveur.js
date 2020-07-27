@@ -174,12 +174,7 @@ const serveurController = {
       typeof req.body.firstname != "string" ||
       typeof req.body.staff != "string" ||
       typeof req.body.adress != "string" ||
-      typeof req.body.tel != "string" ||
-      mdp.test(password) == false ||
-      (req.body.date && typeof req.body.date != "string") ||
-      typeof req.body.adress != "string" ||
-      (req.body.phone && typeof req.body.phone != "string") ||
-      cacahuete.test(email) == false
+      typeof req.body.phone != "string"
     ) {
       res.status(417);
       res.json({
@@ -197,10 +192,8 @@ const serveurController = {
           city: req.body.city,
           lastname: req.body.lastname,
           firstname: req.body.firstname,
-          password: req.body.password,
           adress: req.body.adress,
           phone: req.body.phone,
-          email: req.body.email,
           staff: req.body.staff,
         },
         (err) => {

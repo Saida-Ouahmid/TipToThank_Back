@@ -3,6 +3,8 @@
 var express = require("express");
 var router = express.Router();
 
+const multer = require("../middlewares/multer");
+
 /*route for serveur infos*/
 const serveurController = require("../controllers/serveur");
 const authentification = require("../middlewares/auth");
@@ -18,7 +20,7 @@ router.post("/dataProfil", authentification, serveurController.getServeur);
 router.post("/login", serveurController.login);
 
 /* PUT serveur edit.*/
-router.put("/edit", authentification, serveurController.edit);
+router.put("/edit", authentification, multer, serveurController.edit);
 
 /* DELETE serveur delete.*/
 router.delete("/delete", authentification, serveurController.delete);
