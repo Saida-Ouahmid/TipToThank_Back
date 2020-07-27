@@ -68,9 +68,9 @@ router.get(
 );
 
 /* Appel du router pour la suppression des serveurs */
-router.put(
+router.delete(
   "/management/waiter-delete",
-  auth,
+
   restaurateurController.deleteWaiter
 );
 

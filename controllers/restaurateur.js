@@ -206,7 +206,10 @@ const restaurateurController = {
         from: "tiptotest@gmail.com",
         to: req.body.email,
         subject: "Nodemailer - Test",
-        html: "Wooohooo it works!!:<a href=" + link + ">Clique</a>",
+        html:
+          "Bonjour et merci de votre inscription à TiPourBoire vous pouvez maintenant cliquez sur ce lien pour confirmer votre inscription <a href=" +
+          link +
+          ">Clique</a>",
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
@@ -235,7 +238,9 @@ const restaurateurController = {
           res.status(404).json({ message: "Not found" });
           return;
         }
-        res.json({ message: "Email is been Successfully verified" });
+        res.send(
+          "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
+        );
         console.log(result);
       }
     );
@@ -387,8 +392,8 @@ const restaurateurController = {
   /*Récupération de la liste des serveurs*/
   getWaiterList: (req, res) => {
     Serveur.find(
-      { restaurantId: req.user._id },
-      "lastname firstname staff",
+      { restaurantName: req.user._id },
+      "lastname firstname staff email",
       (err, data) => {
         if (err) {
           res.status(500).end();
@@ -402,12 +407,13 @@ const restaurateurController = {
   deleteWaiter: (req, res) => {
     Serveur.updateOne(
       { _id: req.body._id },
-      { $unset: { restaurantName: "" } },
+      { $set: { restaurantName: "" } },
       (err, data) => {
         if (err) {
           res.status(500).end();
         } else {
-          res.json({ message: "Le serveur a bien été supprimé du restaurant" });
+          res.json({ message: "Suppression Ok" });
+          console.log(req.body._id);
         }
       }
     );
