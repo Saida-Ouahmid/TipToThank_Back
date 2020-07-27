@@ -10,7 +10,7 @@ const authentification = require("../middlewares/auth");
 /* POST Inscription serveur */
 router.post("/register", serveurController.register);
 
-router.post("/monProfil", authentification, serveurController.getServeur);
+router.get("/monProfil", authentification, serveurController.getServeur);
 
 /* POST profil login. */
 router.post("/login", serveurController.login);
