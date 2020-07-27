@@ -39,7 +39,12 @@ router.get("/profil", auth, restaurateurController.getProfil);
 
 /* Appel du router profil affichage */
 router.put("/profil/edit", auth, restaurateurController.editProfil);
-router.put("/profil/edit/logo", auth, multer, restaurateurController.getLogo);
+router.put(
+  "/profil/edit/logo",
+  auth,
+  uploadsingle,
+  restaurateurController.getLogo
+);
 
 /* Appel du router de Recupération du QRCODE */
 router.get("/profil/qrcode");
@@ -63,9 +68,9 @@ router.get(
 );
 
 /* Appel du router pour la suppression des serveurs */
-router.put(
+router.delete(
   "/management/waiter-delete",
-  auth,
+
   restaurateurController.deleteWaiter
 );
 
