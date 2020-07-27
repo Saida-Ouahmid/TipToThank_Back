@@ -189,7 +189,8 @@ const restaurateurController = {
           });
         } else {
           res.json({
-            message: "Votre inscription a bien été prise en compte. Merci.",
+            message:
+              "Votre inscription a bien été prise en compte. Un e-mail de confirmation vient de vous être envoyé !",
           });
         }
       });
