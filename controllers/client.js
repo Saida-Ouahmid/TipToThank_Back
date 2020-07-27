@@ -62,11 +62,6 @@ const clientController = {
             message:
               "L'e-mail saisi est déja lié à un compte. Veuillez vous connecter ou saisir une autre adresse mail.",
           });
-        } else if (mdp.test(password) == false) {
-          res.status(417);
-          res.json({
-            message: "Veuillez respecter le format de saisie du mot de passe.",
-          });
         } else {
           res.json({
             message:
@@ -92,6 +87,7 @@ const clientController = {
 
       transporter.sendMail(mailOptions, (err, data) => {
         if (err) {
+          console.log(err);
           return console.log("Error occurs");
         } else {
           return console.log("L'e-mail de validation a bien été envoyé");
@@ -190,9 +186,9 @@ const clientController = {
       Client.updateOne(
         /*Modif et mise à jour des données l'user repéré grace a son id */
         {
-          /* _id: req.user._id,*/
+          _id: req.user._id,
 
-          _id: "5f16f25f03bfa2298cf52f2e",
+          /*_id: "5f16f25f03bfa2298cf52f2e",*/ // dans le cas que du back
         },
         {
           gender: req.body.gender,
@@ -222,8 +218,8 @@ const clientController = {
   delete: (req, res, next) => {
     Client.deleteOne(
       {
-        /*_id: req.user._id,*/
-        _id: "5f16f25f03bfa2298cf52f2e",
+        _id: req.user._id,
+        /*_id: "5f16f25f03bfa2298cf52f2e",*/
       },
       (err) => {
         if (err) {
