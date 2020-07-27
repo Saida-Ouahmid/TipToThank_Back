@@ -24,30 +24,15 @@ const restaurateurController = {
   /*Ajouter les menus*/
   addMenu: (req, res, next) => {
     req.files.forEach((e) => {
-      const filePath = e.path.replace("public", "");
-      Restaurateur.updateOne(
-        { _id: req.user._id },
-        {
-          $push: {
-            "menu.otherMenu": [
-              {
-                picture: filePath,
-                label: req.body.label,
-                value: req.body.value,
-              },
-            ],
-          },
-        },
-        (err) => {
-          if (err) {
-            return res.json({ message: "Une erreur s'est produite" });
-          } else {
-            return res.json({
-              message: "Votre nouveau menu a bien été ajouté",
-            });
-          }
-        }
-      );
+      req.user.menu.otherMenu.push({ picture: e.path.replace("public", "") });
+    });
+
+    req.user.save((err) => {
+      if (err) {
+        res.status(500).json({ message: "Erreur" });
+      } else {
+        res.json({ message: "Menus ajoutés" });
+      }
     });
   },
 
@@ -135,7 +120,6 @@ const restaurateurController = {
 
   /*Inscription*/
   inscription: (req, res, next) => {
-    const filePath = req.file.path.replace("public", "");
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
       "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
@@ -173,6 +157,7 @@ const restaurateurController = {
             .replace(/[^a-z]+/g, "")
             .substr(0, 5)
       );
+
       const newRestaurateur = new Restaurateur({
         restaurantName: req.body.restaurantName,
         bossFirstName: req.body.bossFirstName,
@@ -189,7 +174,8 @@ const restaurateurController = {
           noon: req.body.noon === "on",
           evening: req.body.evening === "on",
         },
-        logo: filePath,
+        logo: "/images/logo-init.png",
+        menu: { dailyMenu: { picture: "", label: "" }, otherMenu: [] },
         confirmed: false,
         verificationId: rand,
       });
