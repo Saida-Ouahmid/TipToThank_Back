@@ -18,8 +18,9 @@ router.post("/login", clientController.login);
 
 /* PUT client edit.*/
 router.put("/edit", authentification, clientController.edit);
-/* DELETE client delete.*/
+/*Mettre l'autenthif en commentaire quand on veux tester sur postman sinon ca fonctionne pas*/
 
+/* DELETE client delete.*/
 router.delete("/delete", authentification, clientController.delete);
 
 module.exports = router;
