@@ -188,9 +188,8 @@ const serveurController = {
       Serveur.updateOne(
         /*Modif et mise à jour des données l'user repéré grace a son id */
         {
-          /* _id: req.user._id,*/
-
-          _id: "5f18130fd733700fa02869e2",
+          _id: req.user._id,
+          /* _id: "5f18130fd733700fa02869e2",*/
         },
         {
           city: req.body.city,
@@ -220,8 +219,7 @@ const serveurController = {
   delete: (req, res, next) => {
     Serveur.deleteOne(
       {
-        /*_id: req.user._id,*/
-        _id: "5f1708de751b5a4b3c208b0f",
+        _id: req.user._id,
       },
       (err) => {
         if (err) {

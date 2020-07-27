@@ -18,9 +18,9 @@ router.post("/dataProfil", authentification, serveurController.getServeur);
 router.post("/login", serveurController.login);
 
 /* PUT serveur edit.*/
-router.put("/edit", /*authentification,*/ serveurController.edit);
+router.put("/edit", authentification, serveurController.edit);
 
 /* DELETE serveur delete.*/
-router.delete("/delete", /*authentification,*/ serveurController.delete);
+router.delete("/delete", authentification, serveurController.delete);
 
 module.exports = router;

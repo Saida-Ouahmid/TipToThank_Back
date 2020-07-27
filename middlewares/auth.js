@@ -3,6 +3,7 @@
 /* Imports */
 const Restaurateur = require("../model/Restaurateur");
 const jwt = require("jsonwebtoken");
+const Serveur = require("../model/Serveur");
 
 /* Middleware */
 const authentification = (req, res, next) => {
@@ -17,7 +18,7 @@ const authentification = (req, res, next) => {
     if (req.body.userId && req.body.userId !== userId) {
       throw "Invalid user ID";
     } else {
-      Restaurateur.findOne({ _id: userId }, (err, data) => {
+      Serveur.findOne({ _id: userId }, (err, data) => {
         if (err) {
           res.status(500).json({
             error: new Error("Internal server error"),
@@ -27,7 +28,7 @@ const authentification = (req, res, next) => {
 
         if (!data) {
           res.status(404).json({
-            error: new Error("Erreur d'authentification"),
+            message: "Erreur d'authentification",
           });
           return;
         }
@@ -38,7 +39,7 @@ const authentification = (req, res, next) => {
     }
   } catch {
     res.status(401).json({
-      error: new Error("Invalid request!"),
+      message: "Invalid request!",
     });
   }
 };
