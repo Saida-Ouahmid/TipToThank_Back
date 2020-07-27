@@ -220,8 +220,7 @@ const serveurController = {
   delete: (req, res, next) => {
     Serveur.deleteOne(
       {
-        /*_id: req.user._id,*/
-        _id: "5f1708de751b5a4b3c208b0f",
+        _id: req.user._id,
       },
       (err) => {
         if (err) {
