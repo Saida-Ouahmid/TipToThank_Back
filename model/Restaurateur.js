@@ -8,7 +8,7 @@ const Menu = new mongoose.Schema({
 });
 const RestaurateurSchema = new mongoose.Schema(
   {
-    restaurantName: String,
+    restaurantId: String,
     email: { type: String, unique: true },
     password: String,
     siret: String,
