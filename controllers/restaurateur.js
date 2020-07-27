@@ -56,6 +56,7 @@ const restaurateurController = {
           res.json({
             message: "Suppression ok",
           });
+          console.log(req.body.picture);
         }
       }
     );
