@@ -1,4 +1,5 @@
 const Client = require("../model/Client");
+const Serveur = require("../model/Serveur");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -14,15 +15,15 @@ const clientController = {
       "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
     );
     const password = req.body.password;
-    const hash = bcrypt.hashSync(req.body.password, 10); //10= nb de hasch
 
     /* - - - - - Directives pour le mdp - - - - 
-                (?=.?[A-Z]) : Au moins une lettre majuscule  
-                (?=.?[a-z]) : Au moins une lettre anglaise minuscule, 
-                (?=.?[0-9]) : Au moins un chiffre, 
-                (?=.*?[^ws]) : Au moins un caractère spécial, 
-                .{8,} Longueur minimale de huit (avec les ancres)
-                          - - - - - - Directives pour le mdp - - - - - - - - */
+                  (?=.?[A-Z]) : Au moins une lettre majuscule  
+                  (?=.?[a-z]) : Au moins une lettre anglaise minuscule, 
+                  (?=.?[0-9]) : Au moins un chiffre, 
+                  (?=.*?[^ws]) : Au moins un caractère spécial, 
+                  .{8,} Longueur minimale de huit (avec les ancres)
+                            - - - - - - Directives pour le mdp - - - - - - - - */
+
     if (
       (req.body.gender && typeof req.body.gender != "string") ||
       typeof req.body.lastname != "string" ||
@@ -44,6 +45,8 @@ const clientController = {
         message: "Veuillez respecter le format de saisie du mot de passe.",
       });
     } else {
+      const hash = bcrypt.hashSync(password, 10); //10= nb de hasch
+
       const newClient = new Client({
         gender: req.body.gender,
         lastname: req.body.lastname,
@@ -69,8 +72,9 @@ const clientController = {
           });
         } else {
           res.json({
+            success: true,
             message:
-              "Votre inscription a bien été prise en compte, un e-mail de confirmation vient de vous être envoyé. Merci.",
+              "Votre inscription a bien été prise en compte. Un e-mail de confirmation vient de vous être envoyé. Merci.",
           });
         }
       });
@@ -87,12 +91,12 @@ const clientController = {
         to: req.body.email,
         subject: "Confirmation de la création de votre compte client",
         html:
-          "Félicitations ! Votre compte client Tip To Thank a bien été crées. Merci pour votre confiance !",
+          "Félicitations ! Votre compte client Tip To Thank a bien été crée. Merci pour votre confiance !",
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
         if (err) {
-          return console.log("Error occurs");
+          return console.log("Une erreur s'est produite");
         } else {
           return console.log("L'e-mail de validation a bien été envoyé");
         }
@@ -226,33 +230,24 @@ const clientController = {
       }
     );
   },
+
+  getDataServeur: (req, res) => {
+    Serveur.find(
+      /*Get tout les serveurs de la db serveurs, accolade vide permet de récuper l'Id*/
+      {},
+      { lastname: 1, firstname: 1, picture: 1 },
+      (err, data) => {
+        if (err) {
+          res.status(500).json({
+            message:
+              "une erreur s'est produite dans le chargement de la liste des serveurs",
+          });
+        } else {
+          res.json(data);
+        }
+      }
+    );
+  },
 };
 
 module.exports = clientController;
-/*
-1. lien vers une page de Reset
-      -> front : champ dans lequel taper e-mail
-      -> champ : type compte (serveur, restaurateur, client)
-      -> bouton envoi
-
-      FRONT fetch vers BACK
-
-2. création d'un reset link (token de réinitialisation aléatoire) avec crypto
-
-3. Envoi e-mail
-    -> lien de reset "http://site/reset?token=2ghdybdd5vdgdk"
-
-    LIEN envoi vers page FRONT
-
-4. Deux input 
-    -> email
-    -> new password
-    -> bouton validation
-
-    Envoi données vers BACK
-
-5. Trois données recus sur le BACK :
-    -> email
-    -> new password
-    -> token
-Grace à email et token une requête peut être envoyé à la base de données pour trouver le user et actualisé le nouveau mtp hashé .*/
