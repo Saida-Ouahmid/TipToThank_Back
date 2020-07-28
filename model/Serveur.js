@@ -13,6 +13,7 @@ const serveurSchema = new mongoose.Schema(
     staff: String,
     picture: String,
     restaurantName: String,
+    verificationIdAffiliation: String,
   },
   { collection: "serveurs" }
 );
