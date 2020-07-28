@@ -349,6 +349,11 @@ const restaurateurController = {
     } else {
       /*comparaison email user et base de donnée si match ou pas */
       Restaurateur.findOne({ email: req.body.email }, (err, data) => {
+        if (!data) {
+          returnres
+            .status(401)
+            .json({ message: "Identifiant et/ou Mot de passe incorrects" });
+        }
         bcrypt.compare(req.body.password, data.password, (err, result) => {
           if (err) {
             console.log(err);
