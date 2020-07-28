@@ -65,11 +65,6 @@ const clientController = {
             message:
               "L'e-mail saisi est déja lié à un compte. Veuillez vous connecter ou saisir une autre adresse mail.",
           });
-        } else if (mdp.test(password) == false) {
-          res.status(417);
-          res.json({
-            message: "Veuillez respecter le format de saisie du mot de passe.",
-          });
         } else {
           res.json({
             success: true,
@@ -188,6 +183,8 @@ const clientController = {
         /*Modif et mise à jour des données de l'user repéré grace a son id */
         {
           _id: req.user._id,
+
+          /*_id: "5f16f25f03bfa2298cf52f2e",*/ // dans le cas que du back
         },
         {
           gender: req.body.client.gender,
@@ -216,6 +213,7 @@ const clientController = {
     Client.deleteOne(
       {
         _id: req.user._id,
+        /*_id: "5f16f25f03bfa2298cf52f2e",*/
       },
       (err) => {
         if (err) {
