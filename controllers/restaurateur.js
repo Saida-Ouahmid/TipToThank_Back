@@ -468,7 +468,9 @@ const restaurateurController = {
       to: req.body.email,
       subject: "Nodemailer - Test",
       html:
-        "Bonjour et merci de votre inscription à TiPourBoire vous pouvez maintenant cliquez sur ce lien pour confirmer votre inscription <a href=" +
+        "Bonjour le restaurant " +
+        req.user.restaurantName +
+        " veut s'affilier avec vous pour accepter cliquez sur le lien <a href=" +
         link +
         ">Clique</a>",
     };
@@ -476,6 +478,7 @@ const restaurateurController = {
       if (err) {
         return console.log("Error occurs");
       }
+      return res.json({ message: "Votre email a bien été envoyé" });
     });
   },
 
@@ -505,7 +508,7 @@ const restaurateurController = {
           res.status(404).json({ message: "Not found" });
           return;
         }
-        res.json({ message: " Votre compte est maintenant affilié " });
+        res.send("<h2>Votre compte est affilier </h2>");
         console.log(result);
       }
     );
