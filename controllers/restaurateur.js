@@ -115,11 +115,37 @@ const restaurateurController = {
       }
     );
   },
+
   /**
    * PARTIE PROFIL
    */
 
   /*Inscription*/
+  verify: (req, res, next) => {
+    if (!req.query.id) {
+      res.status(404).json({ message: "Not found" });
+      return;
+    }
+    Restaurateur.updateOne(
+      { verificationId: req.query.id },
+      { $set: { confirmed: true, verificationId: null } },
+      (err, result) => {
+        if (err) {
+          res.status(417).json({ message: "erreur" });
+          return;
+        }
+        if (result.nModified == 0) {
+          res.status(404).json({ message: "Not found" });
+          return;
+        }
+        res.send(
+          "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
+        );
+        console.log(result);
+      }
+    );
+  },
+
   inscription: (req, res, next) => {
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
@@ -221,32 +247,6 @@ const restaurateurController = {
       });
     }
   },
-
-  verify: (req, res, next) => {
-    if (!req.query.id) {
-      res.status(404).json({ message: "Not found" });
-      return;
-    }
-    Restaurateur.updateOne(
-      { verificationId: req.query.id },
-      { $set: { confirmed: true, verificationId: null } },
-      (err, result) => {
-        if (err) {
-          res.status(417).json({ message: "erreur" });
-          return;
-        }
-        if (result.nModified == 0) {
-          res.status(404).json({ message: "Not found" });
-          return;
-        }
-        res.send(
-          "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
-        );
-        console.log(result);
-      }
-    );
-  },
-
   /*Récupération du profil du restaurateur connecté*/
   getProfil: (req, res) => {
     res.json(req.user);
@@ -387,13 +387,10 @@ const restaurateurController = {
    * PARTIE GESTION PERSONNEL
    */
 
-  /* A VOIR AVEC WENDY/LAMBERT*/
-  validAffiliation: () => {},
-
   /*Récupération de la liste des serveurs*/
   getWaiterList: (req, res) => {
     Serveur.find(
-      { restaurantName: req.user._id },
+      { "restaurantName._id": req.user._id },
       "lastname firstname staff email",
       (err, data) => {
         if (err) {
@@ -416,6 +413,100 @@ const restaurateurController = {
           res.json({ message: "Suppression Ok" });
           console.log(req.body._id);
         }
+      }
+    );
+  },
+
+  /**
+   * PARTIE AFFILIATION
+   */
+
+  envoiMailAffiliation: (req, res) => {
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL || "tiptotest@gmail.com",
+        pass: process.env.PASSWORD || "!TTTmdp51!",
+      },
+    });
+
+    let rand = new Array(10).fill("").reduce(
+      (accumulator) =>
+        accumulator +
+        Math.random()
+          .toString(36)
+          .replace(/[^a-z]+/g, "")
+          .substr(0, 5)
+    );
+
+    /*Serveur.updateOne(
+      { email: req.body.email },
+      { $set: { verificationIdAffiliation: rand } },
+      (err, result) => {
+        if (err) {
+          res.status(417).json({ message: "erreur" });
+          return;
+        }
+        if (result.nModified == 0) {
+          res.status(404).json({ message: "Nothing modified" });
+          console.log(rand);
+          return;
+        }
+        res.json({ message: "OK" });
+      }
+    );*/
+
+    link =
+      "http://localhost:8080/restaurateur/confirmAffi?email=" +
+      req.body.email +
+      "&_id=" +
+      req.user._id +
+      "&name=" +
+      req.user.restaurantName;
+    let mailOptions = {
+      from: "tiptotest@gmail.com",
+      to: req.body.email,
+      subject: "Nodemailer - Test",
+      html:
+        "Bonjour et merci de votre inscription à TiPourBoire vous pouvez maintenant cliquez sur ce lien pour confirmer votre inscription <a href=" +
+        link +
+        ">Clique</a>",
+    };
+    transporter.sendMail(mailOptions, (err, data) => {
+      if (err) {
+        return console.log("Error occurs");
+      }
+    });
+  },
+
+  /* A VOIR AVEC WENDY/LAMBERT*/
+  validAffiliation: (req, res) => {
+    if (!req.query.email) {
+      res.status(404).json({ message: "Not found1" });
+      return;
+    }
+    Serveur.updateOne(
+      { email: req.query.email },
+      {
+        $set: {
+          restaurantName: {
+            _id: req.query._id,
+            name: req.query.name,
+          },
+        },
+      },
+      (err, result) => {
+        if (err) {
+          res.status(417).json({ message: "erreur" });
+          console.log(err);
+          return;
+        }
+        if (result.nModified == 0) {
+          res.status(404).json({ message: "Not found" });
+          return;
+        }
+        res.json({ message: " Votre compte est maintenant affilié " });
+        console.log(result);
       }
     );
   },

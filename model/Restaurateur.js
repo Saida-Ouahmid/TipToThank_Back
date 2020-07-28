@@ -23,6 +23,7 @@ const RestaurateurSchema = new mongoose.Schema(
     qrCode: String,
     confirmed: Boolean,
     verificationId: String,
+    serveur: [],
   },
   {
     collection: "restaurateurs",

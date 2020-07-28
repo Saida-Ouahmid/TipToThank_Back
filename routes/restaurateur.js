@@ -5,6 +5,7 @@ var router = express.Router();
 const restaurateurController = require("../controllers/restaurateur");
 const auth = require("../middlewares/auth");
 const multer = require("../middlewares/multer");
+
 let uploadsingle = multer.single("file");
 let upload = multer.array("file", 10);
 
@@ -19,6 +20,7 @@ router.put(
   auth,
   restaurateurController.addDailyMenu
 );
+
 router.delete(
   "/dailymenu/delete",
   auth,
@@ -27,9 +29,11 @@ router.delete(
 
 /* Routes Inscription */
 router.post("/inscription", uploadsingle, restaurateurController.inscription);
+
 /*Système de paiement !! */
 router.post("/login", restaurateurController.login);
 router.get("/verify", restaurateurController.verify);
+
 /**
  * APPEL DE ROUTES DE PROFIL
  */
@@ -58,7 +62,13 @@ router.delete("/profil/unsubscribe");
  */
 
 /* Appel du router validation d'affiliation*/
-router.post("/management/affiliation");
+router.post(
+  "/management/affiliation",
+  auth,
+  restaurateurController.envoiMailAffiliation
+);
+
+router.get("/confirmAffi", restaurateurController.validAffiliation);
 
 /* Appel du router pour récupérer la liste server */
 router.get(
