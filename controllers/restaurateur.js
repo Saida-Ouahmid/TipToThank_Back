@@ -4,6 +4,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const date = require("date-and-time");
+var mangopay = require("mangopay2-nodejs-sdk");
+
+const api = new mangopay({
+  clientId: "ctott",
+  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
+  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
+  baseUrl: "https://api.sandbox.mangopay.com/",
+});
 
 const restaurateurController = {
   /**
@@ -126,6 +134,35 @@ const restaurateurController = {
       res.status(404).json({ message: "Not found" });
       return;
     }
+    /* Retrouver Restaurateur*/
+    
+    /*Creation compte MP*/
+    /*Enregistre en tant que confirmé verifié*/
+    api.Users.create({
+      FirstName: req.body.bossFirstName,
+      LastName: req.body.bossName,
+      Address: req.body.adress,
+      Birthday: "21/08/1994",
+      Nationality: null,
+      CountryOfResidence: null,
+      Occupation: null,
+      IncomeRange: null,
+      ProofOfIdentity: null,
+      ProofOfAddress: null,
+      PersonType: "NATURAL",
+      Email: req.body.mail,
+      Tag: "Restaurateur",
+    }).then(
+      function (model) {
+       
+      },
+      (req, res) => {
+        res.json({
+          message: "Erreur d'inscription",
+        });
+      }
+    );
+  },
     Restaurateur.updateOne(
       { verificationId: req.query.id },
       { $set: { confirmed: true, verificationId: null } },
@@ -215,8 +252,7 @@ const restaurateurController = {
           });
         } else {
           res.json({
-            message:
-              "Votre inscription a bien été prise en compte. Un e-mail de confirmation vient de vous être envoyé !",
+            message: "Good",
           });
         }
       });
