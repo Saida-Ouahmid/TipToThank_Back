@@ -162,19 +162,13 @@ const serveurController = {
     }
   },
   edit: (req, res, next) => {
-    const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
-    const email = req.body.email;
-    const mdp = RegExp(
-      "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
-    );
-    const password = req.body.password;
     if (
-      typeof req.body.city != "string" ||
-      typeof req.body.lastname != "string" ||
-      typeof req.body.firstname != "string" ||
-      typeof req.body.staff != "string" ||
-      typeof req.body.adress != "string" ||
-      typeof req.body.phone != "string"
+      typeof req.body.serveur.city != "string" ||
+      typeof req.body.serveur.lastname != "string" ||
+      typeof req.body.serveur.firstname != "string" ||
+      typeof req.body.serveur.adress != "string" ||
+      typeof req.body.serveur.staff != "string" ||
+      (req.body.serveur.phone && typeof req.body.serveur.phone != "string")
     ) {
       res.status(417);
       res.json({
@@ -189,12 +183,12 @@ const serveurController = {
           /* _id: "5f18130fd733700fa02869e2",*/
         },
         {
-          city: req.body.city,
-          lastname: req.body.lastname,
-          firstname: req.body.firstname,
-          adress: req.body.adress,
-          phone: req.body.phone,
-          staff: req.body.staff,
+          city: req.body.serveur.city,
+          lastname: req.body.serveur.lastname,
+          firstname: req.body.serveur.firstname,
+          adress: req.body.serveur.adress,
+          phone: req.body.serveur.phone,
+          staff: req.body.serveur.staff,
         },
         (err) => {
           if (err) {
