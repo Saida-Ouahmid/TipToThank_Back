@@ -55,6 +55,7 @@ const serveurController = {
         phone: req.body.phone,
         email: req.body.email,
         staff: req.body.staff,
+        restaurantName: { _id: " ", name: " " },
       });
 
       /*sauvegarde du nouveau Serveur*/

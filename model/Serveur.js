@@ -12,7 +12,7 @@ const serveurSchema = new mongoose.Schema(
     phone: String,
     staff: String,
     picture: String,
-    restaurantName: String,
+    restaurantName: { id: String, name: String },
     verificationIdAffiliation: String,
   },
   { collection: "serveurs" }
