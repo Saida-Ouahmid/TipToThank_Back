@@ -20,7 +20,8 @@ router.post("/dataProfil", authentification, serveurController.getServeur);
 router.post("/login", serveurController.login);
 
 /* PUT serveur edit.*/
-router.put("/edit", authentification, multer, serveurController.edit);
+router.put("/edit", authentification, serveurController.edit);
+router.put("/editLogo", authentification, multer, serveurController.getLogo);
 
 /* DELETE serveur delete.*/
 router.delete("/delete", authentification, serveurController.delete);

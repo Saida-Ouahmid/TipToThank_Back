@@ -210,6 +210,30 @@ const serveurController = {
       );
     }
   },
+  getLogo: (req, res, next) => {
+    const filePath = req.file.path.replace("public", "");
+    Serveur.updateOne(
+      { _id: req.user._id },
+      {
+        $set: {
+          picture: filePath,
+        },
+      },
+
+      (err) => {
+        if (err) {
+          console.log(err);
+          res.json({ message: "une erreur s'est produite" });
+        } else {
+          res.json({
+            message: "Photo ok ",
+          });
+          console.log(req.body.picture);
+          console.log(req.file.path);
+        }
+      }
+    );
+  },
 
   delete: (req, res, next) => {
     Serveur.deleteOne(
