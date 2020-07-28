@@ -4,6 +4,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const date = require("date-and-time");
+var mangopay = require("mangopay2-nodejs-sdk");
+
+const api = new mangopay({
+  clientId: "ctott",
+  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
+  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
+  baseUrl: "https://api.sandbox.mangopay.com/",
+});
 
 const restaurateurController = {
   /**
@@ -126,24 +134,68 @@ const restaurateurController = {
       res.status(404).json({ message: "Not found" });
       return;
     }
-    Restaurateur.updateOne(
-      { verificationId: req.query.id },
-      { $set: { confirmed: true, verificationId: null } },
-      (err, result) => {
-        if (err) {
-          res.status(417).json({ message: "erreur" });
-          return;
-        }
-        if (result.nModified == 0) {
-          res.status(404).json({ message: "Not found" });
-          return;
-        }
-        res.send(
-          "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
-        );
-        console.log(result);
+
+    /* ETAPE 1: Trouver le restaurateur */
+    Restaurateur.findOne({ verificationId: req.query.id }, (error, user) => {
+      /* En cas d'erreur */
+      if (error) {
+        res.status(500).json({ message: "An error has occured" });
+        return;
       }
-    );
+
+      /* Aucun restaurateur trouvé */
+      if (!user) {
+        res.status(404).json({ message: "Not found" });
+        return;
+      }
+
+      /* ETAPE 2: Création de l'utilistaeur MangoPay */
+      api.Users.create({
+        FirstName: user.bossFirstName,
+        LastName: user.bossName,
+        Address: user.adress,
+        Birthday: "21/08/1994",
+        Nationality: null,
+        CountryOfResidence: null,
+        Occupation: null,
+        IncomeRange: null,
+        ProofOfIdentity: null,
+        ProofOfAddress: null,
+        PersonType: "NATURAL",
+        Email: user.mail,
+        Tag: "Restaurateur",
+      }).then(
+        /* Restaurateur enregistré comme utilisateur MangoPay */
+        function (model) {
+          /* ETAPE 3: Engresitrement de la vérification du restaurateur */
+          user.confirmed = true;
+          user.verification = null;
+
+          /* Enregistrement du restaurateur */
+          user.save((error) => {
+            /* En ca d'erreur */
+            if (error) {
+              res.status(500).json({
+                message: "An error has occured",
+              });
+              return;
+            }
+
+            /* Réponse */
+            res.send(
+              "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
+            );
+          });
+        },
+
+        /* En cas d'erreur */
+        (req, res) => {
+          res.status(500).json({
+            message: "An error has occured",
+          });
+        }
+      );
+    });
   },
 
   inscription: (req, res, next) => {
@@ -215,8 +267,7 @@ const restaurateurController = {
           });
         } else {
           res.json({
-            message:
-              "Votre inscription a bien été prise en compte. Un e-mail de confirmation vient de vous être envoyé !",
+            message: "Good",
           });
         }
       });

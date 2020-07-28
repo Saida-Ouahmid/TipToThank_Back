@@ -89,6 +89,9 @@ router.delete(
  */
 
 /*Appel du router pour la connexion */
-router.post("/connexion");
+
+/**
+ * PARTIE MANGOPAY
+ */
 
 module.exports = router;
