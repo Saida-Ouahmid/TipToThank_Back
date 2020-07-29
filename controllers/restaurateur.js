@@ -7,10 +7,10 @@ const date = require("date-and-time");
 var mangopay = require("mangopay2-nodejs-sdk");
 
 const api = new mangopay({
-  clientId: "ctott",
+  clientId: "ctottt",
   clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
   // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
-  baseUrl: "https://api.sandbox.mangopay.com/",
+  baseUrl: "https://api.sandbox.mangopay.com",
 });
 
 const restaurateurController = {
@@ -153,27 +153,26 @@ const restaurateurController = {
       api.Users.create({
         FirstName: user.bossFirstName,
         LastName: user.bossName,
-        Address: user.adress,
-        Birthday: "21/08/1994",
-        Nationality: null,
-        CountryOfResidence: null,
+        Birthday: -258443002,
+        Nationality: "FR",
+        CountryOfResidence: "FR",
         Occupation: null,
         IncomeRange: null,
         ProofOfIdentity: null,
         ProofOfAddress: null,
         PersonType: "NATURAL",
-        Email: user.mail,
+        Email: user.email,
         Tag: "Restaurateur",
       }).then(
         /* Restaurateur enregistré comme utilisateur MangoPay */
-        function (model) {
+        (model) => {
           /* ETAPE 3: Engresitrement de la vérification du restaurateur */
           user.confirmed = true;
-          user.verification = null;
+          user.verificationId = null;
 
           /* Enregistrement du restaurateur */
           user.save((error) => {
-            /* En ca d'erreur */
+            /* En cas d'erreur */
             if (error) {
               res.status(500).json({
                 message: "An error has occured",
