@@ -12,6 +12,8 @@ const serveurSchema = new mongoose.Schema(
     phone: String,
     staff: String,
     picture: String,
+    iban: String,
+    id: String,
     restaurantName: String,
     verificationIdAffiliation: String,
   },
