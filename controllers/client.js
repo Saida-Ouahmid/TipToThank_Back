@@ -14,7 +14,6 @@ const clientController = {
       "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
     );
     const password = req.body.password;
-    const hash = bcrypt.hashSync(req.body.password, 10); //10= nb de hasch
 
     /* - - - - - Directives pour le mdp - - - - 
                 (?=.?[A-Z]) : Au moins une lettre majuscule  
@@ -44,6 +43,7 @@ const clientController = {
         message: "Veuillez respecter le format de saisie du mot de passe.",
       });
     } else {
+      const hash = bcrypt.hashSync(req.body.password, 10); //10= nb de hasch
       const newClient = new Client({
         gender: req.body.gender,
         lastname: req.body.lastname,
@@ -64,6 +64,7 @@ const clientController = {
           });
         } else {
           res.json({
+            success: true,
             message:
               "Votre inscription a bien été prise en compte, un e-mail de confirmation vient de vous être envoyé. Merci.",
           });
