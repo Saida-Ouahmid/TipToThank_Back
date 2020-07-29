@@ -17,6 +17,8 @@ const serveurSchema = new mongoose.Schema(
     restaurantName: String,
     restaurantName: { _id: String, name: String },
     verificationIdAffiliation: String,
+    confirmed: Boolean,
+    verificationId: String,
   },
   { collection: "serveurs" }
 );
