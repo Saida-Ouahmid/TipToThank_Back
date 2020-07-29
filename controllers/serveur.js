@@ -94,6 +94,28 @@ const serveurController = {
       });
     }
   },
+  verify: (req, res, next) => {
+    if (!req.query.id) {
+      res.status(404).json({ message: "Not found" });
+      return;
+    }
+    Serveur.updateOne(
+      { verificationId: req.query.id },
+      { $set: { confirmed: true, verificationId: null } },
+      (err, result) => {
+        if (err) {
+          res.status(417).json({ message: "erreur" });
+          return;
+        }
+        if (result.nModified == 0) {
+          res.status(404).json({ message: "Not found" });
+          return;
+        }
+        res.json({ message: "Email is been Successfully verified" });
+        console.log(result);
+      }
+    );
+  },
 
   /*Récupération du profil du serveur connecté*/
 
