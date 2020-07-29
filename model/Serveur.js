@@ -15,6 +15,7 @@ const serveurSchema = new mongoose.Schema(
     iban: String,
     id: String,
     restaurantName: String,
+    restaurantName: { _id: String, name: String },
     verificationIdAffiliation: String,
   },
   { collection: "serveurs" }
