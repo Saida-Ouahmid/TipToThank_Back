@@ -13,7 +13,7 @@ const authentification = require("../middlewares/auth");
 router.post("/register", serveurController.register);
 
 router.get("/monProfil", authentification, serveurController.getServeur);
-
+router.delete("/monProfil", serveurController.deleteWaiter);
 router.post("/dataProfil", authentification, serveurController.getServeur);
 
 /* POST profil login. */

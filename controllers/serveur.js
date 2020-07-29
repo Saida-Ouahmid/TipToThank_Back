@@ -248,6 +248,20 @@ const serveurController = {
       }
     );
   },
+  deleteWaiter: (req, res) => {
+    Serveur.updateOne(
+      { _id: req.body._id },
+      { $set: { restaurantName: "" } },
+      (err, data) => {
+        if (err) {
+          res.status(500).end();
+        } else {
+          res.json({ message: "Suppression Ok" });
+          console.log(req.body._id);
+        }
+      }
+    );
+  },
 };
 
 module.exports = serveurController;
