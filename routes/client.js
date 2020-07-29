@@ -23,4 +23,7 @@ router.put("/edit", authentification, clientController.edit);
 /* DELETE client delete.*/
 router.delete("/delete", authentification, clientController.delete);
 
+/*GET  ou POST fonctionnent liste serveur*/
+router.post("/getDataServeur", clientController.getDataServeur);
+
 module.exports = router;

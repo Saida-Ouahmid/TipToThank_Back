@@ -17,11 +17,11 @@ const ClientSchema = new mongoose.Schema(
     /*check que notre email est bien unique */
     historique: [
       {
-        Montant: Number,
+        montant: Number,
         date: Date,
         waiter: String,
         general: String,
-        RestaurantName: String,
+        restaurantName: String,
       },
     ],
     favoris: [{ restaurantName: String, link: String }],
