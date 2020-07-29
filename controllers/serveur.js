@@ -3,62 +3,139 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+var mangopay = require("mangopay2-nodejs-sdk");
+const api = new mangopay({
+  clientId: "ctottt",
+  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
+  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
+  baseUrl: "https://api.sandbox.mangopay.com",
+});
 
 /* Controller to register; get data of serveur; login; edit and delete serveur*/
 const serveurController = {
   /*INSCRIPTION*/
-  register: (req, res, next) => {
-    const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
-    const email = req.body.email;
-    const mdp = RegExp(
+
+  verify: (req, res, next) => {
+    if (!req.query.id) {
+      res.status(404).json({ message: "shit" });
+      return;
+    }
+
+    /* ETAPE 1: Trouver le restaurateur */
+    Serveur.findOne({ verificationId: req.query.id }, (error, user) => {
+      /* En cas d'erreur */
+      if (error) {
+        res.status(500).json({ message: "An error has occured" });
+        return;
+      }
+
+      /* Aucun serveur trouvé */
+      if (!user) {
+        res.status(404).json({ message: "Not found" });
+        return;
+      }
+
+      /* ETAPE 2: Création de l'utilistaeur MangoPay */
+      api.Users.create({
+        FirstName: user.firstname,
+        LastName: user.lastname,
+        Birthday: -258443002,
+        Nationality: "FR",
+        CountryOfResidence: "FR",
+        Occupation: null,
+        IncomeRange: null,
+        ProofOfIdentity: null,
+        ProofOfAddress: null,
+        PersonType: "NATURAL",
+        Email: user.email,
+        Tag: "Serveur",
+      }).then(
+        /* Restaurateur enregistré comme utilisateur MangoPay */
+        (model) => {
+          /* ETAPE 3: Engresitrement de la vérification du restaurateur */
+          user.confirmed = true;
+          user.verificationId = null;
+
+          /* Enregistrement du restaurateur */
+          user.save((error) => {
+            /* En cas d'erreur */
+            if (error) {
+              res.status(500).json({
+                message: "An error has occured",
+              });
+              return;
+            }
+
+            /* Réponse */
+            res.send(
+              "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
+            );
+          });
+        },
+
+        /* En cas d'erreur */
+        (req, res) => {
+          res.status(500).json({
+            message: "An error has occured",
+          });
+        }
+      );
+    });
+  },
+
+  inscription: (req, res, next) => {
+    const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
+    const passwordVerif = RegExp(
       "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
     );
-    const password = req.body.password;
-    const hash = bcrypt.hashSync(req.body.password, 10); //10= nb de hasch
 
-    /* - - - - - Directives pour le mdp - - - - 
-                  (?=.?[A-Z]) : Au moins une lettre majuscule  
-                  (?=.?[a-z]) : Au moins une lettre anglaise minuscule, 
-                  (?=.?[0-9]) : Au moins un chiffre, 
-                  (?=.*?[^ws]) : Au moins un caractère spécial, 
-                  .{8,} Longueur minimale de huit (avec les ancres)
-                            - - - - - - Directives pour le mdp - - - - - - - - */
+    /*stockage d'un mot de passe crypté dans la base de données apres le req*/
+    const hash = bcrypt.hashSync(req.body.password, 10);
 
     if (
-      typeof req.body.city != "string" ||
       typeof req.body.firstname != "string" ||
       typeof req.body.lastname != "string" ||
-      typeof req.body.date != "string" ||
+      typeof req.body.phone != "string" ||
       typeof req.body.adress != "string" ||
+      typeof req.body.city != "string" ||
       typeof req.body.staff != "string" ||
-      cacahuete.test(email) ==
-        false /*check de format de saisie de l'email avec RegExp*/
+      emailVerif.test(req.body.email) == false
     ) {
       res.status(417);
       res.json({
         message:
           "Veuillez compléter les champs obligatoires et respecter le format de saisie.",
       });
-    } else if (mdp.test(password) == false) {
+    } else if (passwordVerif.test(req.body.password) == false) {
       res.status(417);
       res.json({
-        message: "Veuillez respecter le format de saisie du mot de passe.",
+        message:
+          "Votre mot de passe doit comporter au minimum 8 caractères dont une minuscule, une majuscule, un chiffre et un caractère spécial.",
       });
     } else {
+      /*TEST ENVOI MAIL*/
+      let rand = new Array(10).fill("").reduce(
+        (accumulator) =>
+          accumulator +
+          Math.random()
+            .toString(36)
+            .replace(/[^a-z]+/g, "")
+            .substr(0, 5)
+      );
+
       const newServeur = new Serveur({
-        city: req.body.city,
-        lastname: req.body.lastname,
         firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        phone: req.body.phone,
+        email: req.body.email,
         password: hash /*mdp hashé*/,
         date: req.body.date,
         adress: req.body.adress,
-        phone: req.body.phone,
-        email: req.body.email,
-        staff: req.body.staff,
-        restaurantName: { _id: " ", name: " " },
+        confirmed: false,
+        verificationId: rand,
+        restaurantName: { _id: "", name: "" },
       });
 
-      /*sauvegarde du nouveau Serveur*/
       newServeur.save((err) => {
         if (err) {
           console.log(err);
@@ -68,23 +145,27 @@ const serveurController = {
           });
         } else {
           res.json({
-            message: "Votre inscription a bien été prise en compte. Merci.",
+            message: "Good",
           });
         }
       });
       let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: process.env.EMAIL || "tiptothank@gmail.com",
-          pass: process.env.PASSWORD || "tiptothankTTT",
+          user: process.env.EMAIL || "tiptotest@gmail.com",
+          pass: process.env.PASSWORD || "!TTTmdp51!",
         },
       });
 
+      link = "http://localhost:8080/serveur/verify?id=" + rand;
       let mailOptions = {
-        from: "tiptothank@gmail.com",
+        from: "tiptotest@gmail.com",
         to: req.body.email,
         subject: "Nodemailer - Test",
-        html: "Felicitation votre compte serveur à bien été crée !",
+        html:
+          "Bonjour et merci de votre inscription à TiPourBoire vous pouvez maintenant cliquez sur ce lien pour confirmer votre inscription <a href=" +
+          link +
+          ">Clique</a>",
       };
 
       transporter.sendMail(mailOptions, (err, data) => {

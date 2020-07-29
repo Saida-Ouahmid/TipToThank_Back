@@ -12,8 +12,13 @@ const serveurSchema = new mongoose.Schema(
     phone: String,
     staff: String,
     picture: String,
+    iban: String,
+    id: String,
+    restaurantName: String,
     restaurantName: { _id: String, name: String },
     verificationIdAffiliation: String,
+    confirmed: Boolean,
+    verificationId: String,
   },
   { collection: "serveurs" }
 );
