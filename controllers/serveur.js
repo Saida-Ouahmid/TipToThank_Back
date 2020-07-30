@@ -333,7 +333,7 @@ const serveurController = {
   },
   deleteWaiter: (req, res) => {
     Serveur.updateOne(
-      { _id: req.body._id },
+      { _id: req.user._id },
       { $set: { restaurantName: "" } },
       (err, data) => {
         if (err) {
