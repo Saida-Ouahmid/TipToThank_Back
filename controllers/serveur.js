@@ -48,6 +48,7 @@ const serveurController = {
         ProofOfAddress: null,
         PersonType: "NATURAL",
         Email: user.email,
+
         Tag: "Serveur",
       }).then(
         /* Restaurateur enregistré comme utilisateur MangoPay */
@@ -132,6 +133,7 @@ const serveurController = {
         date: req.body.date,
         adress: req.body.adress,
         confirmed: false,
+        mangoID: "",
         verificationId: rand,
         restaurantName: { _id: "", name: "" },
       });
