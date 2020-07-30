@@ -14,7 +14,6 @@ const serveurSchema = new mongoose.Schema(
     picture: String,
     iban: String,
     id: String,
-    restaurantName: String,
     restaurantName: { _id: String, name: String },
     verificationIdAffiliation: String,
     confirmed: Boolean,

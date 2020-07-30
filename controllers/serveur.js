@@ -127,6 +127,8 @@ const serveurController = {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         phone: req.body.phone,
+        city: req.body.city,
+        staff: req.body.staff,
         email: req.body.email,
         password: hash /*mdp hashé*/,
         date: req.body.date,
