@@ -6,8 +6,10 @@ var router = express.Router();
 /*route for client infos*/
 const clientController = require("../controllers/client");
 const authentification = require("../middlewares/authentif");
-
+/*POST Web Pay In*/
+router.post("/webPayIn", clientController.webPayIn);
 /* POST Inscription client */
+
 router.post("/register", clientController.register);
 
 /*POST client data.*/
@@ -24,6 +26,6 @@ router.put("/edit", authentification, clientController.edit);
 router.delete("/delete", authentification, clientController.delete);
 
 /*GET  ou POST fonctionnent liste serveur*/
-router.post("/getDataServeur", clientController.getDataServeur);
+router.get("/getDataServeur", clientController.getDataServeur);
 
 module.exports = router;
