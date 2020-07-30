@@ -568,6 +568,72 @@ const restaurateurController = {
       }
     );
   },
+
+  /**
+   * PARTIE MANGOPAY
+   */
+  cardRegistration: (req, res) => {
+    api.CardRegistrations.create(
+      {
+        UserId: "85041828",
+        Currency: "EUR",
+      },
+      (data) => {
+        res.json(data);
+      }
+    );
+  },
+  cardToken: (req, res) => {
+    req.body.AccessKey;
+    req.body.PreregistrationData;
+
+    /*1X0m87dmM2LiwFgxPLBJ,
+    pMUiqKEKexdo_NolxfBziZwdropv0C-N7PNVzIBHu0es7neCwJpI0FLaV3NS1slkS4wCy-yiraxeE65tmxOe8A*/
+  },
+  cardRegistrationToken: (req, res) => {
+    api.CardRegistrations.update(
+      {
+        Id: "85058470",
+
+        RegistrationData:
+          "data=Syp4XwkOrf6_w3X9Lzm405IFeoBKQWQmzqvDcBqijEdl04Otqccv9ZggqW0SinTazPr2_RVXOup7Sol06eJREWi0UCsXDsDAoWVdVNMjZ3wLIDfSPPuayqFIUZ0-4HLZ0ftIYwFxOdfmDQ5GtM_cIg",
+      },
+      (data) => {
+        res.json(data);
+      }
+    );
+  },
+
+  paiement: (req, res) => {
+    var x = api.PayIns.create(
+      {
+        AuthorId: "85041828",
+        DebitedFunds: {
+          Currency: "EUR",
+          Amount: 4500,
+        },
+        Fees: {
+          Currency: "EUR",
+          Amount: 0,
+        },
+        SecureModeReturnURL: "http://www.test.com",
+        CardID: "85058472",
+        CreditedWalletId: "85043164",
+        Tag: "Premier paiement",
+        PaymentType: "CARD",
+        ExecutionType: "DIRECT",
+        //ChargeDate: 1596095400,
+        SecureMode: "FORCE",
+      },
+      (data) => {
+        res.json(data);
+      }
+    );
+
+    setTimeout(function () {
+      x;
+    }, 200000);
+  },
 };
 
 module.exports = restaurateurController;

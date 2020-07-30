@@ -94,4 +94,9 @@ router.delete(
  * PARTIE MANGOPAY
  */
 
+router.post("/abonnement", restaurateurController.cardRegistration);
+
+router.put("/card", restaurateurController.cardRegistrationToken);
+
+router.post("/paiement", restaurateurController.paiement);
 module.exports = router;
