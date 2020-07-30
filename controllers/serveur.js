@@ -21,7 +21,7 @@ const serveurController = {
       return;
     }
 
-    /* ETAPE 1: Trouver le restaurateur */
+    /* ETAPE 1: Trouver le serveur */
     Serveur.findOne({ verificationId: req.query.id }, (error, user) => {
       /* En cas d'erreur */
       if (error) {
