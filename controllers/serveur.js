@@ -3,13 +3,9 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-var mangopay = require("mangopay2-nodejs-sdk");
-const api = new mangopay({
-  clientId: "ctottt",
-  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
-  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
-  baseUrl: "https://api.sandbox.mangopay.com",
-});
+const stripe = require("stripe")(
+  "sk_test_51HAxRlHoh2Vgz5Qd4gemyV84ODV8vdNB69QzOSv7Zn3MRGX09aNq4cbmZtHzYqwkCCVHE1F2CNd9b2v1sq9HiTdM00mEihmKKL"
+);
 
 /* Controller to register; get data of serveur; login; edit and delete serveur*/
 const serveurController = {
@@ -35,52 +31,37 @@ const serveurController = {
         return;
       }
 
-      /* ETAPE 2: Création de l'utilistaeur MangoPay */
-      api.Users.create({
-        FirstName: user.firstname,
-        LastName: user.lastname,
-        Birthday: -258443002,
-        Nationality: "FR",
-        CountryOfResidence: "FR",
-        Occupation: null,
-        IncomeRange: null,
-        ProofOfIdentity: null,
-        ProofOfAddress: null,
-        PersonType: "NATURAL",
-        Email: user.email,
+      /* ETAPE 2: Création de l'utilistaeur stripe */
+      stripe.customers
+        .create({
+          description: "serveur",
+          email: user.email,
+        })
+        .then(
+          /* Restaurateur enregistré comme utilisateur MangoPay */
+          (model) => {
+            /* ETAPE 3: Engresitrement de la vérification du serveur */
+            user.confirmed = true;
+            user.verificationId = null;
+            user.stripeId = model.id;
 
-        Tag: "Serveur",
-      }).then(
-        /* Restaurateur enregistré comme utilisateur MangoPay */
-        (model) => {
-          /* ETAPE 3: Engresitrement de la vérification du restaurateur */
-          user.confirmed = true;
-          user.verificationId = null;
+            /* Enregistrement du serveur */
+            user.save((error) => {
+              /* En cas d'erreur */
+              if (error) {
+                res.status(500).json({
+                  message: "An error has occured",
+                });
+                return;
+              }
 
-          /* Enregistrement du restaurateur */
-          user.save((error) => {
-            /* En cas d'erreur */
-            if (error) {
-              res.status(500).json({
-                message: "An error has occured",
-              });
-              return;
-            }
-
-            /* Réponse */
-            res.send(
-              "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
-            );
-          });
-        },
-
-        /* En cas d'erreur */
-        (req, res) => {
-          res.status(500).json({
-            message: "An error has occured",
-          });
-        }
-      );
+              /* Réponse */
+              res.send(
+                "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Cliquez ici</a>"
+              );
+            });
+          }
+        );
     });
   },
 
@@ -128,14 +109,12 @@ const serveurController = {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         phone: req.body.phone,
-        city: req.body.city,
-        staff: req.body.staff,
         email: req.body.email,
         password: hash /*mdp hashé*/,
         date: req.body.date,
         adress: req.body.adress,
         confirmed: false,
-        mangoID: "",
+        stripeId: "",
         verificationId: rand,
         restaurantName: { _id: "", name: "" },
       });
@@ -335,7 +314,7 @@ const serveurController = {
   },
   deleteWaiter: (req, res) => {
     Serveur.updateOne(
-      { _id: req.user._id },
+      { _id: req.body._id },
       { $set: { restaurantName: "" } },
       (err, data) => {
         if (err) {

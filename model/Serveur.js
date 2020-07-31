@@ -18,7 +18,7 @@ const serveurSchema = new mongoose.Schema(
     verificationIdAffiliation: String,
     confirmed: Boolean,
     verificationId: String,
-    mangoID: String,
+    stripeId: String,
   },
   { collection: "serveurs" }
 );
