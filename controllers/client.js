@@ -4,10 +4,19 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+var mangopay = require("mangopay2-nodejs-sdk");
+
+const api = new mangopay({
+  clientId: "ctott",
+  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
+  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
+  baseUrl: "https://api.sandbox.mangopay.com/",
+});
 
 /* Controller to register; get data of client; login; edit and delete client*/
 const clientController = {
   /*INSCRIPTION*/
+
   register: (req, res, next) => {
     const cacahuete = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
