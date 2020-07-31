@@ -1,47 +1,14 @@
 const Client = require("../model/Client");
 const Serveur = require("../model/Serveur");
+const Restaurateur = require("../model/Restaurateur");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-var mangopay = require("mangopay2-nodejs-sdk");
 
-const api = new mangopay({
-  clientId: "ctott",
-  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
-  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
-  baseUrl: "https://api.sandbox.mangopay.com/",
-});
+/* Controller to mangopay; register; get data of client; login; edit ; delete client and get data serveurs*/
 
-/* Controller to register; get data of client; login; edit and delete client*/
 const clientController = {
-  webPayIn: (req, res) => {
-    api.PayIns.create(
-      {
-        AuthorId: "85091885",
-
-        DebitedFunds: {
-          Currency: "EUR",
-          Amount: 12,
-        },
-        Fees: {
-          Currency: "EUR",
-          Amount: 1,
-        },
-        PaymentType: "CARD",
-        ExecutionType: "WEB",
-        ReturnURL: "http://www.my-site.com/returnURL",
-        CardType: "CB_VISA_MASTERCARD",
-        CreditedWalletId: "85043164",
-        Culture: "FR",
-      },
-
-      (data) => {
-        res.json(data);
-      }
-    );
-  },
-
   /*INSCRIPTION*/
 
   register: (req, res, next) => {
@@ -103,33 +70,34 @@ const clientController = {
           });
         } else {
           res.json({
-            success: true,
+            success: true /**Permet d'envoyer vers la page de connexion apres le succes de l'inscription */,
             message:
               "Votre inscription a bien été prise en compte. Un e-mail de confirmation vient de vous être envoyé. Merci.",
           });
-        }
-      });
-      let transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL || "tiptothank@gmail.com",
-          pass: process.env.PASSWORD || "tiptothankTTT",
-        },
-      });
 
-      let mailOptions = {
-        from: "tiptothank@gmail.com",
-        to: req.body.email,
-        subject: "Confirmation de la création de votre compte client",
-        html:
-          "Félicitations ! Votre compte client Tip To Thank a bien été crée. Merci pour votre confiance !",
-      };
+          let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+              user: process.env.EMAIL || "tiptothank@gmail.com",
+              pass: process.env.PASSWORD || "tiptothankTTT",
+            },
+          });
 
-      transporter.sendMail(mailOptions, (err, data) => {
-        if (err) {
-          return console.log("Une erreur s'est produite");
-        } else {
-          return console.log("L'e-mail de validation a bien été envoyé");
+          let mailOptions = {
+            from: "tiptothank@gmail.com",
+            to: req.body.email,
+            subject: "Création compte TiptoThank",
+            html:
+              "Félicitations ! Votre compte client Tip to Thank a bien été crée. Merci pour votre confiance !",
+          };
+
+          transporter.sendMail(mailOptions, (err, data) => {
+            if (err) {
+              return console.log("Une erreur s'est produite");
+            } else {
+              return console.log("L'e-mail de validation a bien été envoyé");
+            }
+          });
         }
       });
     }
@@ -274,7 +242,27 @@ const clientController = {
         if (err) {
           res.status(500).json({
             message:
-              "une erreur s'est produite dans le chargement de la liste des serveurs",
+              "Une erreur s'est produite dans le chargement de la liste des serveurs",
+          });
+        } else {
+          res.json(data);
+        }
+      }
+    );
+  },
+  getMenu: (req, res, next) => {
+    Restaurateur.find(
+      /*Get tla photo du daily menu, accolade vide permet de récuper l'Id*/
+      {},
+      {
+        "menu.dailyMenu": {
+          picture: 1,
+        },
+      },
+      (err, data) => {
+        if (err) {
+          res.status(417).json({
+            message: "Une erreur s'est produite dans le chargement du menu",
           });
         } else {
           res.json(data);
