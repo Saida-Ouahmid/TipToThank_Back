@@ -5,13 +5,10 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const date = require("date-and-time");
 var mangopay = require("mangopay2-nodejs-sdk");
-
-const api = new mangopay({
-  clientId: "ctottt",
-  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
-  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
-  baseUrl: "https://api.sandbox.mangopay.com",
-});
+const { options } = require("../routes/restaurateur");
+var stripe = require("stripe")(
+  "sk_test_51HAujDGy1HBMy8sBfBqUaxDiLc2yzSl4bQUAIv9nhr77I0XfNEUn911esqNSHdZscrebHUY0UoWxbGeSY25qShKd00hTSRd2e8"
+);
 
 const restaurateurController = {
   /**
@@ -150,50 +147,60 @@ const restaurateurController = {
       }
 
       /* ETAPE 2: Création de l'utilistaeur MangoPay */
-      api.Users.create({
-        FirstName: user.bossFirstName,
-        LastName: user.bossName,
-        Birthday: -258443002,
-        Nationality: "FR",
-        CountryOfResidence: "FR",
-        Occupation: null,
-        IncomeRange: null,
-        ProofOfIdentity: null,
-        ProofOfAddress: null,
-        PersonType: "NATURAL",
-        Email: user.email,
-        Tag: "Restaurateur",
-      }).then(
-        /* Restaurateur enregistré comme utilisateur MangoPay */
-        (model) => {
-          /* ETAPE 3: Engresitrement de la vérification du restaurateur */
-          user.confirmed = true;
-          user.verificationId = null;
+      stripe.customers
+        .create({
+          email: user.email,
+          description: "Restaurateur",
+        })
+        .then(
+          /* Restaurateur enregistré comme utilisateur MangoPay */
+          (model) => {
+            /* ETAPE 3: Engresitrement de la vérification du restaurateur */
+            user.confirmed = true;
+            user.verificationId = null;
+            user.stripeId = model.id;
 
-          /* Enregistrement du restaurateur */
-          user.save((error) => {
-            /* En cas d'erreur */
-            if (error) {
-              res.status(500).json({
-                message: "An error has occured",
-              });
-              return;
-            }
-
-            /* Réponse */
-            res.send(
-              "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Clique</a>"
+            /* Enregistrement du restaurateur */
+            user.save((error) => {
+              /* En cas d'erreur */
+              if (error) {
+                res.status(500).json({
+                  message: "An error has occured",
+                });
+                return;
+              }
+              res.send(
+                "<p>Vous êtes maintenant inscrit à TiPourBoire veuillez vous connecter pour vous abonner </><a href=http://localhost:3000/connexionAbo> Clique </a>"
+              );
+            });
+            stripe.customers.createSource(
+              model.id,
+              { source: "tok_mastercard" },
+              function (err, card) {
+                if (err) {
+                  res.status(500).json({ message: "An error has occured" });
+                  return;
+                }
+                res.json(card);
+              }
             );
-          });
-        },
+            /* stripe.subscriptions.create({
+              customer: model.id,
+              items: [
+                {
+                  price: "price_1HAvcJGy1HBMy8sBsYumqTQg",
+                  quantity: 1,
+                },
+              ],
+            });*/
+          },
 
-        /* En cas d'erreur */
-        (req, res) => {
-          res.status(500).json({
-            message: "An error has occured",
-          });
-        }
-      );
+          (req, res) => {
+            res.status(500).json({
+              message: "An error has occured",
+            });
+          }
+        );
     });
   },
 
@@ -256,6 +263,7 @@ const restaurateurController = {
         menu: { dailyMenu: { picture: "", label: "" }, otherMenu: [] },
         confirmed: false,
         verificationId: rand,
+        stripeId: "",
       });
       newRestaurateur.save((err) => {
         if (err) {
@@ -297,6 +305,7 @@ const restaurateurController = {
       });
     }
   },
+
   /*Récupération du profil du restaurateur connecté*/
   getProfil: (req, res) => {
     res.json(req.user);
@@ -435,9 +444,6 @@ const restaurateurController = {
     res.json(req.user.qrCode);
   },
 
-  /*Désabonnement (à voir avec MangoPay)*/
-  unsubscribe: () => {},
-
   /**
    * PARTIE GESTION PERSONNEL
    */
@@ -568,71 +574,32 @@ const restaurateurController = {
       }
     );
   },
-
   /**
-   * PARTIE MANGOPAY
+   * PARTIE STRIPE
    */
-  cardRegistration: (req, res) => {
-    api.CardRegistrations.create(
-      {
-        UserId: "85041828",
-        Currency: "EUR",
+
+  createSubscription: async (req, res) => {
+    try {
+      await stripe.paymentMethods.attach(req.body.paymentMethodId, {
+        customer: req.user.stripeId,
+      });
+    } catch (error) {
+      return res.status("402").send({ error: { message: error.message } });
+    }
+    await stripe.customers.update(req.user.stripeId, {
+      invoice_settings: {
+        default_payment_method: req.body.paymentMethodId,
       },
-      (data) => {
-        res.json(data);
-      }
-    );
-  },
-  cardToken: (req, res) => {
-    req.body.AccessKey;
-    req.body.PreregistrationData;
+    });
 
-    /*1X0m87dmM2LiwFgxPLBJ,
-    pMUiqKEKexdo_NolxfBziZwdropv0C-N7PNVzIBHu0es7neCwJpI0FLaV3NS1slkS4wCy-yiraxeE65tmxOe8A*/
-  },
-  cardRegistrationToken: (req, res) => {
-    api.CardRegistrations.update(
-      {
-        Id: "85058470",
+    // Create the subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: req.user.stripeId,
+      items: [{ price: "price_1HAvcJGy1HBMy8sBsYumqTQg" }],
+      expand: ["latest_invoice.payment_intent"],
+    });
 
-        RegistrationData:
-          "data=Syp4XwkOrf6_w3X9Lzm405IFeoBKQWQmzqvDcBqijEdl04Otqccv9ZggqW0SinTazPr2_RVXOup7Sol06eJREWi0UCsXDsDAoWVdVNMjZ3wLIDfSPPuayqFIUZ0-4HLZ0ftIYwFxOdfmDQ5GtM_cIg",
-      },
-      (data) => {
-        res.json(data);
-      }
-    );
-  },
-
-  paiement: (req, res) => {
-    var x = api.PayIns.create(
-      {
-        AuthorId: "85041828",
-        DebitedFunds: {
-          Currency: "EUR",
-          Amount: 4500,
-        },
-        Fees: {
-          Currency: "EUR",
-          Amount: 0,
-        },
-        SecureModeReturnURL: "http://www.test.com",
-        CardID: "85058472",
-        CreditedWalletId: "85043164",
-        Tag: "Premier paiement",
-        PaymentType: "CARD",
-        ExecutionType: "DIRECT",
-        //ChargeDate: 1596095400,
-        SecureMode: "FORCE",
-      },
-      (data) => {
-        res.json(data);
-      }
-    );
-
-    setTimeout(function () {
-      x;
-    }, 200000);
+    res.send(subscription);
   },
 };
 

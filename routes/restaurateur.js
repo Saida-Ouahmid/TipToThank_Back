@@ -78,25 +78,14 @@ router.get(
 );
 
 /* Appel du router pour la suppression des serveurs */
-router.delete(
-  "/management/waiter-delete",
-
-  restaurateurController.deleteWaiter
+router.delete("/management/waiter-delete", restaurateurController.deleteWaiter);
+/**
+ * PARTIE STRIPE PAIEMENT
+ */
+router.post(
+  "/createsubscription",
+  auth,
+  restaurateurController.createSubscription
 );
 
-/**
- * APPEL DES ROUTES CONNEXION
- */
-
-/*Appel du router pour la connexion */
-
-/**
- * PARTIE MANGOPAY
- */
-
-router.post("/abonnement", restaurateurController.cardRegistration);
-
-router.put("/card", restaurateurController.cardRegistrationToken);
-
-router.post("/paiement", restaurateurController.paiement);
 module.exports = router;
