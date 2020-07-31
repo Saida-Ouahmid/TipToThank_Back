@@ -6,8 +6,9 @@ var router = express.Router();
 /*route for client infos*/
 const clientController = require("../controllers/client");
 const authentification = require("../middlewares/authentif");
-/*POST Web Pay In*/
-router.post("/webPayIn", clientController.webPayIn);
+
+router.post("/create-payment-intent", clientController.createPayementIntent);
+
 /* POST Inscription client */
 
 router.post("/register", clientController.register);

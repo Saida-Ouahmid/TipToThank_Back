@@ -4,42 +4,31 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-var mangopay = require("mangopay2-nodejs-sdk");
-
-const api = new mangopay({
-  clientId: "ctott",
-  clientApiKey: "sPuA8HB9cKzPFFxyyTaNW0rxx7Zp9zmOqynxMp9ocOHKzqeKvM",
-  // Set the right production API url. If testing, omit the property since it defaults to sandbox URL
-  baseUrl: "https://api.sandbox.mangopay.com/",
-});
+const stripe = require("stripe")(
+  "sk_test_51HB1h7BOgY8YXSrNoA76Zyz5RKgETQDn6ot8XL9lVPnTvlzPkLO2QKX3iovxhtVxImQjXm4AE2V6AJOj4MyggQ2V00EZqZtNzA"
+);
 
 /* Controller to register; get data of client; login; edit and delete client*/
+
+// Create a PaymentIntent with the order amount and currency
+
+const calculateOrderAmount = (items) => {
+  // Replace this constant with a calculation of the order's amount
+  // Calculate the order total on the server to prevent
+  // people from directly manipulating the amount on the client
+  return 1400;
+};
 const clientController = {
-  webPayIn: (req, res) => {
-    api.PayIns.create(
-      {
-        AuthorId: "85091885",
-
-        DebitedFunds: {
-          Currency: "EUR",
-          Amount: 12,
-        },
-        Fees: {
-          Currency: "EUR",
-          Amount: 1,
-        },
-        PaymentType: "CARD",
-        ExecutionType: "WEB",
-        ReturnURL: "http://www.my-site.com/returnURL",
-        CardType: "CB_VISA_MASTERCARD",
-        CreditedWalletId: "85043164",
-        Culture: "FR",
-      },
-
-      (data) => {
-        res.json(data);
-      }
-    );
+  createPayementIntent: async (req, res) => {
+    const { items } = req.body;
+    // Create a PaymentIntent with the order amount and currency
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: calculateOrderAmount(items),
+      currency: "usd",
+    });
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
   },
 
   /*INSCRIPTION*/
