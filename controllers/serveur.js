@@ -128,6 +128,8 @@ const serveurController = {
         firstname: req.body.firstname,
         lastname: req.body.lastname,
         phone: req.body.phone,
+        city: req.body.city,
+        staff: req.body.staff,
         email: req.body.email,
         password: hash /*mdp hashé*/,
         date: req.body.date,
@@ -333,7 +335,7 @@ const serveurController = {
   },
   deleteWaiter: (req, res) => {
     Serveur.updateOne(
-      { _id: req.body._id },
+      { _id: req.user._id },
       { $set: { restaurantName: "" } },
       (err, data) => {
         if (err) {
