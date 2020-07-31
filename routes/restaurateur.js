@@ -32,6 +32,7 @@ router.post("/inscription", uploadsingle, restaurateurController.inscription);
 
 /*Système de paiement !! */
 router.post("/login", restaurateurController.login);
+router.post("/loginAbo", restaurateurController.loginAbo);
 router.get("/verify", restaurateurController.verify);
 
 /**

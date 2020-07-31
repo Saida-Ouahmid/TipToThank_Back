@@ -181,18 +181,8 @@ const restaurateurController = {
                   res.status(500).json({ message: "An error has occured" });
                   return;
                 }
-                res.json(card);
               }
             );
-            /* stripe.subscriptions.create({
-              customer: model.id,
-              items: [
-                {
-                  price: "price_1HAvcJGy1HBMy8sBsYumqTQg",
-                  quantity: 1,
-                },
-              ],
-            });*/
           },
 
           (req, res) => {
@@ -264,6 +254,7 @@ const restaurateurController = {
         confirmed: false,
         verificationId: rand,
         stripeId: "",
+        abonne: false,
       });
       newRestaurateur.save((err) => {
         if (err) {
@@ -388,6 +379,61 @@ const restaurateurController = {
    */
 
   login: (req, res, next) => {
+    const verifEmail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
+    const email = req.body.email;
+
+    if (
+      verifEmail.test(email) == false ||
+      typeof req.body.password != "string" /**check des formats emails et pwd */
+    ) {
+      res.status(417);
+      res.json({
+        message:
+          "Saisie incorrects. Veuillez ressaisir vos identifiants et mot de passe.",
+      });
+    } else if (Restaurateur.confirmed == false) {
+      res.status(417).json({
+        message:
+          "Veuillez confirmer votre adresse e-mail pour pouvoir vous connecter",
+      });
+    } else {
+      /*comparaison email user et base de donnée si match ou pas */
+      Restaurateur.findOne({ email: req.body.email }, (err, data) => {
+        if (!data) {
+          returnres
+            .status(401)
+            .json({ message: "Identifiant et/ou Mot de passe incorrects" });
+        }
+        bcrypt.compare(req.body.password, data.password, (err, result) => {
+          if (err) {
+            console.log(err);
+            res.status(500).json({
+              message: "une erreur s'est produite",
+            }); /*erreur de saisie ou autre err*/
+          } else if (!data || !result) {
+            res.status(401).json({
+              message:
+                "Identifiant et/ou Mot de passe incorrects" /*donnée ne matche pas avec database*/,
+            });
+          } else if (data.abonne === false) {
+            res.status(401).json({
+              message: "Vous devez être abonné pour pouvoir accéder au site.",
+            });
+          } else {
+            res.status(200).json({
+              userId: data._id,
+              token: jwt.sign({ userId: data._id }, "RANDOM_TOKEN_SECRET", {
+                expiresIn: "24h",
+                /*durée de validité du Token, l'utilisateur devra se reconnecter au bout de 24h*/
+              }),
+              message: "Connexion Réussie !" /*good password */,
+            });
+          }
+        });
+      });
+    }
+  },
+  loginAbo: (req, res, next) => {
     const verifEmail = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const email = req.body.email;
 
@@ -579,27 +625,39 @@ const restaurateurController = {
    */
 
   createSubscription: async (req, res) => {
-    try {
-      await stripe.paymentMethods.attach(req.body.paymentMethodId, {
-        customer: req.user.stripeId,
+    Restaurateur.findOne({ _id: req.user._id }, async (err, user) => {
+      try {
+        await stripe.paymentMethods.attach(req.body.paymentMethodId, {
+          customer: user.stripeId,
+        });
+      } catch (error) {
+        return res.status("402").send({ error: { message: error.message } });
+      }
+      await stripe.customers.update(user.stripeId, {
+        invoice_settings: {
+          default_payment_method: req.body.paymentMethodId,
+        },
       });
-    } catch (error) {
-      return res.status("402").send({ error: { message: error.message } });
-    }
-    await stripe.customers.update(req.user.stripeId, {
-      invoice_settings: {
-        default_payment_method: req.body.paymentMethodId,
-      },
-    });
+      // Create the subscription
+      const subscription = await stripe.subscriptions.create({
+        customer: user.stripeId,
+        items: [{ price: "price_1HAvcJGy1HBMy8sBsYumqTQg" }],
+        expand: ["latest_invoice.payment_intent"],
+        trial_period_days: 90,
+      });
 
-    // Create the subscription
-    const subscription = await stripe.subscriptions.create({
-      customer: req.user.stripeId,
-      items: [{ price: "price_1HAvcJGy1HBMy8sBsYumqTQg" }],
-      expand: ["latest_invoice.payment_intent"],
+      user.abonne = true;
+      user.save((error) => {
+        /* En cas d'erreur */
+        if (error) {
+          res.status(500).json({
+            message: "An error has occured",
+          });
+          return;
+        }
+        res.send(subscription);
+      });
     });
-
-    res.send(subscription);
   },
 };
 

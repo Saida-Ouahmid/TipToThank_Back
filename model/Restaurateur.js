@@ -25,6 +25,7 @@ const RestaurateurSchema = new mongoose.Schema(
     verificationId: String,
     serveur: [],
     stripeId: String,
+    abonne: Boolean,
   },
   {
     collection: "restaurateurs",
