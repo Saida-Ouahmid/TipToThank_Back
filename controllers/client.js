@@ -15,6 +15,33 @@ const api = new mangopay({
 
 /* Controller to register; get data of client; login; edit and delete client*/
 const clientController = {
+  webPayIn: (req, res) => {
+    api.PayIns.create(
+      {
+        AuthorId: "85091885",
+
+        DebitedFunds: {
+          Currency: "EUR",
+          Amount: 12,
+        },
+        Fees: {
+          Currency: "EUR",
+          Amount: 1,
+        },
+        PaymentType: "CARD",
+        ExecutionType: "WEB",
+        ReturnURL: "http://www.my-site.com/returnURL",
+        CardType: "CB_VISA_MASTERCARD",
+        CreditedWalletId: "85043164",
+        Culture: "FR",
+      },
+
+      (data) => {
+        res.json(data);
+      }
+    );
+  },
+
   /*INSCRIPTION*/
 
   register: (req, res, next) => {
