@@ -162,6 +162,8 @@ const serveurController = {
         password: hash /*mdp hashé*/,
         date: req.body.date,
         adress: req.body.adress,
+        staff: req.body.staff,
+        city: req.body.city,
         confirmed: false,
         stripeId: "",
         verificationId: rand,
