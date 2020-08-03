@@ -403,6 +403,9 @@ const serveurController = {
       }
     );
   },
+  showWallet: (req, res) => {
+    Serveur.findOne({ _id: req.body._id }, res.json(req.user.wallet));
+  },
 };
 
 module.exports = serveurController;
