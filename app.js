@@ -11,6 +11,8 @@ var cors = require("./middlewares/cors");
 
 //import de mongoose
 const mongoose = require("mongoose");
+//import de cors
+const cors = require("./middlewares/cors");
 
 var app = express();
 

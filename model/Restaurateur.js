@@ -8,10 +8,10 @@ const Menu = new mongoose.Schema({
 });
 const RestaurateurSchema = new mongoose.Schema(
   {
-    restaurantId: String,
+    restaurantName: String,
     email: { type: String, unique: true },
     password: String,
-    siret: String,
+    bossFirstName: String,
     bossName: String,
     adress: String,
     location: { longitude: String, latitude: String },
@@ -23,6 +23,10 @@ const RestaurateurSchema = new mongoose.Schema(
     qrCode: String,
     confirmed: Boolean,
     verificationId: String,
+    serveur: [],
+    stripeId: String,
+    abonne: Boolean,
+    subId: String,
   },
   {
     collection: "restaurateurs",
