@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const date = require("date-and-time");
-var mangopay = require("mangopay2-nodejs-sdk");
+
 const { options } = require("../routes/restaurateur");
 var stripe = require("stripe")(
   "sk_test_51HAujDGy1HBMy8sBfBqUaxDiLc2yzSl4bQUAIv9nhr77I0XfNEUn911esqNSHdZscrebHUY0UoWxbGeSY25qShKd00hTSRd2e8"
@@ -169,25 +169,9 @@ const restaurateurController = {
                 });
                 return;
               }
-              res.send(
-                "<p>Vous êtes maintenant inscrit à TiPourBoire veuillez vous connecter pour vous abonner </><a href=http://localhost:3000/connexionAbo> Clique </a>"
+              res.redirect(
+                "http://localhost:3000/connexionAbo" //'<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px; font-family:arial">TIPOURBOIRE</h1></header> <p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Vous êtes maintenant inscrit à TiPourBoire !<br/> Veuillez vous connecter pour vous abonner. <br/> <br/>  <a style=" margin-top:15px; text-decoration:none; color: #f4a521; font-weight:bold; font-size:23px; font-family:arial" href=http://localhost:3000/connexionAbo>S\'abonner</a> </p>  <footer style="background-color:#f4a521; padding:10px "></footer>'
               );
-            });
-            stripe.customers.createSource(
-              model.id,
-              { source: "tok_mastercard" },
-              function (err, card) {
-                if (err) {
-                  res.status(500).json({ message: "An error has occured" });
-                  return;
-                }
-              }
-            );
-          },
-
-          (req, res) => {
-            res.status(500).json({
-              message: "An error has occured",
             });
           }
         );
@@ -255,6 +239,7 @@ const restaurateurController = {
         verificationId: rand,
         stripeId: "",
         abonne: false,
+        subId: "",
       });
       newRestaurateur.save((err) => {
         if (err) {
@@ -283,9 +268,9 @@ const restaurateurController = {
         to: req.body.email,
         subject: "Nodemailer - Test",
         html:
-          "Bonjour et merci de votre inscription à TiPourBoire vous pouvez maintenant cliquez sur ce lien pour confirmer votre inscription <a href=" +
+          '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">TIPOURBOIRE</h1></header> <p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Bonjour et merci pour votre inscription à TiPourBoire ! <br/> Cliquez sur le lien ci-dessous pour confirmer votre inscription. <br/> <br/>  <a style=" margin-top:15px; text-decoration:none; color: #f4a521; font-weight:bold; font-size:23px; font-family:arial" href=' +
           link +
-          ">Clique</a>",
+          '>Confirmer</a> </p>  <footer style="background-color:#f4a521; padding:10px "></footer>',
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
@@ -463,7 +448,7 @@ const restaurateurController = {
           if (err) {
             console.log(err);
             res.status(500).json({
-              message: "une erreur s'est produite",
+              message: "Une erreur s'est produite",
             }); /*erreur de saisie ou autre err*/
           } else if (!data || !result) {
             res.status(401).json({
@@ -546,23 +531,6 @@ const restaurateurController = {
           .substr(0, 5)
     );
 
-    /*Serveur.updateOne(
-      { email: req.body.email },
-      { $set: { verificationIdAffiliation: rand } },
-      (err, result) => {
-        if (err) {
-          res.status(417).json({ message: "erreur" });
-          return;
-        }
-        if (result.nModified == 0) {
-          res.status(404).json({ message: "Nothing modified" });
-          console.log(rand);
-          return;
-        }
-        res.json({ message: "OK" });
-      }
-    );*/
-
     link =
       "http://localhost:8080/restaurateur/confirmAffi?email=" +
       req.body.email +
@@ -574,12 +542,13 @@ const restaurateurController = {
       from: "tiptotest@gmail.com",
       to: req.body.email,
       subject: "Nodemailer - Test",
+
       html:
-        "Bonjour le restaurant " +
+        '<header  style= "background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">TIPOURBOIRE</h1></header><p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Bonjour, le restaurant ' +
         req.user.restaurantName +
-        " veut s'affilier avec vous pour accepter cliquez sur le lien <a href=" +
+        ' veut s\'affilier avec vous. <br/> Pour accepter la demande, cliquez sur le lien ci-dessous. <br/><br/>  <a  style=" margin-top:15px; text-decoration:none; color: #f4a521; font-weight:bold; font-size:23px; font-family:arial" href=' +
         link +
-        ">Clique</a>",
+        '>Confirmer</a> <footer style="background-color:#f4a521; padding:10px "></footer>',
     };
     transporter.sendMail(mailOptions, (err, data) => {
       if (err) {
@@ -615,7 +584,7 @@ const restaurateurController = {
           res.status(404).json({ message: "Not found" });
           return;
         }
-        res.send("<h2>Votre compte est affilier </h2>");
+        res.send("<h2> Affichage de la page profil du serveur </h2>");
         console.log(result);
       }
     );
@@ -639,14 +608,88 @@ const restaurateurController = {
         },
       });
       // Create the subscription
-      const subscription = await stripe.subscriptions.create({
-        customer: user.stripeId,
-        items: [{ price: "price_1HAvcJGy1HBMy8sBsYumqTQg" }],
-        expand: ["latest_invoice.payment_intent"],
-        trial_period_days: 90,
+      stripe.subscriptions
+        .create({
+          customer: user.stripeId,
+          items: [{ price: "price_1HAvcJGy1HBMy8sBsYumqTQg" }],
+          expand: ["latest_invoice.payment_intent"],
+          trial_period_days: 90,
+        })
+        .then((model) => {
+          user.abonne = true;
+          user.subId = model.id;
+          user.save((error) => {
+            /* En cas d'erreur */
+            if (error) {
+              res.status(500).json({
+                message: "An error has occured",
+              });
+              return;
+            }
+
+            res.json(model);
+          });
+        });
+    });
+  },
+
+  unSubscription: (req, res) => {
+    Restaurateur.findOne({ _id: req.user.id }, (err, user) => {
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL || "tiptotest@gmail.com",
+          pass: process.env.PASSWORD || "!TTTmdp51!",
+        },
+      });
+      let mailOptions = {
+        from: "tiptotest@gmail.com",
+        to: user.email,
+        subject: "Nodemailer - Test",
+        html:
+          '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">TIPOURBOIRE</h1></header> <p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Bonjour, votre demande de désabonnement a bien été prise en compte. <br/> Votre abonnement sera définitivement résilié à la fin de votre mensualité. <br/> A bientôt</p>  <footer style="background-color:#f4a521; padding:10px "></footer>',
+      };
+
+      transporter.sendMail(mailOptions, (err, data) => {
+        if (err) {
+          return console.log("Error occurs");
+        }
+        return console.log("Email sent!!!");
+      });
+      Serveur.find({ "restaurantName._id": user._id }, (error, serveurs) => {
+        let transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.EMAIL || "tiptotest@gmail.com",
+            pass: process.env.PASSWORD || "!TTTmdp51!",
+          },
+        });
+        let maillist = [serveurs.email];
+        let mailOptions = {
+          from: "tiptotest@gmail.com",
+          to: maillist,
+          subject: "Nodemailer - Test",
+          html:
+            '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">TIPOURBOIRE</h1></header> <p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Bonjour, le restaurant ' +
+            user.restaurantName.name +
+            " a choisi de se désabonner de TiPourBoire. <br/> Si vous n'avez pas d'autres restaurant affilié vous pouvez choisir de vous désabonner directement via votre profil. <br/> A bientôt</p>  <footer style=\"background-color:#f4a521; padding:10px \"></footer>",
+        };
+        if (!maillist) {
+          stripe.subscriptions.update(user.subId, {
+            cancel_at_period_end: true,
+          });
+        } else {
+          transporter.sendMail(mailOptions, (err, data) => {
+            if (err) {
+              return console.log("Error occurs");
+            }
+            return console.log("Email sent!!!");
+          });
+        }
       });
 
-      user.abonne = true;
+      stripe.subscriptions.update(user.subId, { cancel_at_period_end: true });
+      user.subId = null;
       user.save((error) => {
         /* En cas d'erreur */
         if (error) {
@@ -655,7 +698,7 @@ const restaurateurController = {
           });
           return;
         }
-        res.send(subscription);
+        res.json({ message: "Vous êtes bien désabonné(e)" });
       });
     });
   },
