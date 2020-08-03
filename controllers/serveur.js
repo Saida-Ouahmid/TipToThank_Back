@@ -412,8 +412,33 @@ const serveurController = {
       }
     );
   },
-  showWallet: (req, res) => {
-    Serveur.findOne({ _id: req.body._id }, res.json(req.user.wallet));
+  addToWallet: (req, res) => {
+    Serveur.findOne({ _id: req.body.id }, (err, user) => {
+      if (err) {
+        res.status(500).json({ message: "error" });
+        return;
+      }
+      if (!user) {
+        res.status(400).json({ message: "waiter not found" });
+        return;
+      }
+      const amount = parseFloat(req.body.amount);
+      if (typeof user.wallet != "number") {
+        user.wallet = 0;
+      }
+      user.wallet += amount;
+      user.history.push({
+        date: new Date().toISOString(),
+        amount: amount,
+      });
+      user.save((err) => {
+        if (err) {
+          res.status(500).json({ message: "error" });
+          return;
+        }
+        res.json({ message: "Changement sauvegarder" });
+      });
+    });
   },
 };
 

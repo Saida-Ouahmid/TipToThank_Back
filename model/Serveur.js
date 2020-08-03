@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
+const historySchema = new mongoose.Schema({
+  date: Date,
+  amount: Number,
+});
 const serveurSchema = new mongoose.Schema(
   {
     lastname: String,
@@ -20,6 +24,7 @@ const serveurSchema = new mongoose.Schema(
     verificationId: String,
     stripeId: String,
     wallet: Number,
+    history: [historySchema],
     subId: String,
     card: { number: String, exp_month: Number, exp_year: Number, cvc: String },
   },
