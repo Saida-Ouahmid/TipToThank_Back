@@ -21,13 +21,15 @@ const calculateOrderAmount = (items) => {
 };
 const clientController = {
   createPayementIntent: async (req, res) => {
-    const { items } = req.body;
     // Create a PaymentIntent with the order amount and currency
+    /*const amount = req.body.amount;*/
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: calculateOrderAmount(items),
-      currency: "usd",
+      amount: parseFloat(req.body.amount) * 100, // pour eviter les cts
+      currency: "eur",
+      // Verify your integration in this guide by including this parameter
+      metadata: { integration_check: "accept_a_payment" },
     });
-    res.send({
+    res.json({
       clientSecret: paymentIntent.client_secret,
     });
   },
