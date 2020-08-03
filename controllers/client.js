@@ -262,7 +262,7 @@ const clientController = {
     Serveur.find(
       /*Get tout les serveurs de la db serveurs, accolade vide permet de récuper l'Id*/
       {},
-      { lastname: 1, firstname: 1, picture: 1 },
+      { lastname: 1, firstname: 1, picture: 1, stripeId: 1 },
       (err, data) => {
         if (err) {
           res.status(500).json({
