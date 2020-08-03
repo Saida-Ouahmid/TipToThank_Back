@@ -7,7 +7,6 @@ var indexRouter = require("./routes/index");
 var restaurateurRouter = require("./routes/restaurateur");
 var serveurRouter = require("./routes/serveur");
 var clientRouter = require("./routes/client");
-var cors = require("./middlewares/cors");
 
 //import de mongoose
 const mongoose = require("mongoose");
@@ -35,7 +34,7 @@ mongoose.connection.once("open", () => {
 });
 
 app.use("/", indexRouter);
-
+app.use("/restaurateur", restaurateurRouter);
 app.use("/serveur", serveurRouter);
 app.use("/client", clientRouter);
 
