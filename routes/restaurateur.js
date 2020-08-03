@@ -1,10 +1,8 @@
-/* SI TU N'ES PAS ARNAUD OU MARIE TU SORS */
-
 var express = require("express");
 var router = express.Router();
 const restaurateurController = require("../controllers/restaurateur");
-const auth = require("../middlewares/auth");
-const multer = require("../middlewares/multer");
+const auth = require("../middlewares/auth-restaurateur");
+const multer = require("../middlewares/multer-restaurateur");
 
 let uploadsingle = multer.single("file");
 let upload = multer.array("file", 10);
