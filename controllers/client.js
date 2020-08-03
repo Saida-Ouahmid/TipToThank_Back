@@ -111,9 +111,9 @@ const clientController = {
           let mailOptions = {
             from: "tiptothank@gmail.com",
             to: req.body.email,
-            subject: "Création compte TiptoThank",
+            subject: "Creation compte TiptoThank",
             html:
-              "Félicitations ! Votre compte client Tip to Thank a bien été crée. Merci pour votre confiance !",
+              '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">Tip to Thank</h1></header> <p style=" padding:15px; text-align:justify; font-size:18px; font-family:arial">Bonjour, votre inscription à Tip to Thank a bien été prise en compte ! <br/> <br/> Merci pour votre confiance et bon appétit dans nos restaurants partenaires ! <br/><br/> <br/><br/>La team Tip to Thank,</p>',
           };
 
           transporter.sendMail(mailOptions, (err, data) => {
@@ -262,13 +262,14 @@ const clientController = {
     Serveur.find(
       /*Get tout les serveurs de la db serveurs, accolade vide permet de récuper l'Id*/
       {},
-      { lastname: 1, firstname: 1, picture: 1, stripeId: 1 },
+      { lastname: 1, firstname: 1, picture: 1 },
       (err, data) => {
         if (err) {
           res.status(500).json({
             message:
               "Une erreur s'est produite dans le chargement de la liste des serveurs",
           });
+          console.log(data);
         } else {
           res.json(data);
         }
