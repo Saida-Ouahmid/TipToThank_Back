@@ -276,13 +276,11 @@ const clientController = {
     );
   },
   getMenu: (req, res, next) => {
-    Restaurateur.find(
-      /*Get tla photo du daily menu, accolade vide permet de récuper l'Id*/
+    Restaurateur.findOne(
+      /*Get la photo du daily menu, accolade vide permet de récuper l'Id*/
       {},
       {
-        "menu.dailyMenu": {
-          picture: 1,
-        },
+        menu: 1,
       },
       (err, data) => {
         if (err) {
