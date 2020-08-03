@@ -19,6 +19,7 @@ const serveurSchema = new mongoose.Schema(
     confirmed: Boolean,
     verificationId: String,
     stripeId: String,
+    subId: String,
     card: { number: String, exp_month: Number, exp_year: Number, cvc: String },
   },
   { collection: "serveurs" }

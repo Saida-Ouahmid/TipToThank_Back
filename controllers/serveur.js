@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const { model } = require("../model/Serveur");
 const stripe = require("stripe")(
   "sk_test_51HAxRlHoh2Vgz5Qd4gemyV84ODV8vdNB69QzOSv7Zn3MRGX09aNq4cbmZtHzYqwkCCVHE1F2CNd9b2v1sq9HiTdM00mEihmKKL"
 );
@@ -56,11 +57,7 @@ const serveurController = {
               }
 
               /* Réponse */
-              res.send(
-                '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">TIPOURBOIRE</h1></header> <p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Bonjour et merci pour votre inscription à TiPourBoire ! <br/> Cliquez sur le lien ci-dessous pour confirmer votre inscription. <br/> <br/>  <a style=" margin-top:15px; text-decoration:none; color: #f4a521; font-weight:bold; font-size:23px; font-family:arial" href=' +
-                  link +
-                  '>Confirmer</a> </p>  <footer style="background-color:#f4a521; padding:10px "></footer>'
-              );
+              res.redirect("http://localhost:3000/connexion");
             });
           }
         );
@@ -111,9 +108,7 @@ const serveurController = {
       // asynchronously called
     });
   },
-  deleteSub: (req, res) => {
-    stripe.subscriptions.del(req.user.stripeId);
-  },
+
   inscription: (req, res, next) => {
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
@@ -162,9 +157,13 @@ const serveurController = {
         password: hash /*mdp hashé*/,
         date: req.body.date,
         adress: req.body.adress,
+        city: req.body.city,
+        staff: req.body.staff,
         confirmed: false,
         stripeId: "",
         verificationId: rand,
+        subId: "",
+
         restaurantName: { _id: "", name: "" },
       });
 
@@ -195,9 +194,9 @@ const serveurController = {
         to: req.body.email,
         subject: "Nodemailer - Test",
         html:
-          "Bonjour et merci de votre inscription à TiPourBoire vous pouvez maintenant cliquez sur ce lien pour confirmer votre inscription <a href=" +
+          '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">TIPOURBOIRE</h1></header> <p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Bonjour et merci pour votre inscription à TiPourBoire ! <br/> Cliquez sur le lien ci-dessous pour confirmer votre inscription. <br/> <br/>  <a style=" margin-top:15px; text-decoration:none; color: #f4a521; font-weight:bold; font-size:23px; font-family:arial" href=' +
           link +
-          ">Clique</a>",
+          '>Confirmer</a> </p>  <footer style="background-color:#f4a521; padding:10px "></footer>',
       };
 
       transporter.sendMail(mailOptions, (err, data) => {
@@ -359,13 +358,25 @@ const serveurController = {
       });
 
       // Create the subscription
-      const subscription = await stripe.subscriptions.create({
-        customer: user.stripeId,
-        items: [{ price: "price_1HAxYZHoh2Vgz5QdzSq7HOHN" }],
-        expand: ["latest_invoice.payment_intent"],
-      });
-
-      res.send(subscription);
+      stripe.subscriptions
+        .create({
+          customer: user.stripeId,
+          items: [{ price: "price_1HAxYZHoh2Vgz5QdzSq7HOHN" }],
+          expand: ["latest_invoice.payment_intent"],
+          trial_period_days: 90,
+        })
+        .then((model) => {
+          user.subId = model.id;
+          user.save((error) => {
+            if (error) {
+              res.status(500).json({
+                message: "An error has occured",
+              });
+              return;
+            }
+            res.json(model);
+          });
+        });
     });
   },
 

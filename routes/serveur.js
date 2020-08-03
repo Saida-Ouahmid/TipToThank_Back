@@ -40,9 +40,5 @@ router.post(
   authentification,
   serveurController.createSubscription
 );
-router.delete(
-  "/deleteSubscription",
-  authentification,
-  serveurController.deleteSub
-);
+
 module.exports = router;
