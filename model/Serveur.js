@@ -18,7 +18,6 @@ const serveurSchema = new mongoose.Schema(
     verificationIdAffiliation: String,
     confirmed: Boolean,
     verificationId: String,
-    paymentMethodId: String,
     stripeId: String,
     card: { number: String, exp_month: Number, exp_year: Number, cvc: String },
   },

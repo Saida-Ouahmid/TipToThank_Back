@@ -57,7 +57,9 @@ const serveurController = {
 
               /* Réponse */
               res.send(
-                "<p> Votre compte est maintenant confirmez voici le lien pour vous connectez </p> <a href= http://localhost:3000/connexion>Cliquez ici</a>"
+                '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">TIPOURBOIRE</h1></header> <p style=" padding:15px; text-align:center; font-size:18px; font-family:arial">Bonjour et merci pour votre inscription à TiPourBoire ! <br/> Cliquez sur le lien ci-dessous pour confirmer votre inscription. <br/> <br/>  <a style=" margin-top:15px; text-decoration:none; color: #f4a521; font-weight:bold; font-size:23px; font-family:arial" href=' +
+                  link +
+                  '>Confirmer</a> </p>  <footer style="background-color:#f4a521; padding:10px "></footer>'
               );
             });
           }
@@ -101,6 +103,17 @@ const serveurController = {
     );
   },
 
+  payout: (req, res) => {
+    stripe.payouts.create({ amount: 1100, currency: "eur" }, function (
+      err,
+      payout
+    ) {
+      // asynchronously called
+    });
+  },
+  deleteSub: (req, res) => {
+    stripe.subscriptions.del(req.user.stripeId);
+  },
   inscription: (req, res, next) => {
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
@@ -331,27 +344,29 @@ const serveurController = {
   },
 
   createSubscription: async (req, res) => {
-    try {
-      await stripe.paymentMethods.attach(req.body.paymentMethodId, {
-        customer: req.user.stripeId,
+    Serveur.findOne({ _id: req.user._id }, async (err, user) => {
+      try {
+        await stripe.paymentMethods.attach(req.body.paymentMethodId, {
+          customer: user.stripeId,
+        });
+      } catch (error) {
+        return res.status("402").send({ error: { message: error.message } });
+      }
+      await stripe.customers.update(req.user.stripeId, {
+        invoice_settings: {
+          default_payment_method: req.body.paymentMethodId,
+        },
       });
-    } catch (error) {
-      return res.status("402").send({ error: { message: error.message } });
-    }
-    await stripe.customers.update(req.user.stripeId, {
-      invoice_settings: {
-        default_payment_method: req.body.paymentMethodId,
-      },
-    });
 
-    // Create the subscription
-    const subscription = await stripe.subscriptions.create({
-      customer: req.user.stripeId,
-      items: [{ price: "price_1HAxYZHoh2Vgz5QdzSq7HOHN" }],
-      expand: ["latest_invoice.payment_intent"],
-    });
+      // Create the subscription
+      const subscription = await stripe.subscriptions.create({
+        customer: user.stripeId,
+        items: [{ price: "price_1HAxYZHoh2Vgz5QdzSq7HOHN" }],
+        expand: ["latest_invoice.payment_intent"],
+      });
 
-    res.send(subscription);
+      res.send(subscription);
+    });
   },
 
   delete: (req, res, next) => {

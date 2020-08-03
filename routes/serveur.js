@@ -35,5 +35,14 @@ router.delete("/delete", authentification, serveurController.delete);
 router.put("/id", authentification, multer, serveurController.getLogo);
 router.put("/iban", authentification, multer, serveurController.getLogo);
 router.post("/paiement", authentification, serveurController.paiement);
-
+router.post(
+  "/createsubscription",
+  authentification,
+  serveurController.createSubscription
+);
+router.delete(
+  "/deleteSubscription",
+  authentification,
+  serveurController.deleteSub
+);
 module.exports = router;
