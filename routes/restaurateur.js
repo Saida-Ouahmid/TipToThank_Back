@@ -3,7 +3,6 @@ var router = express.Router();
 const restaurateurController = require("../controllers/restaurateur");
 const auth = require("../middlewares/auth-restaurateur");
 const multer = require("../middlewares/multer-restaurateur");
-
 let uploadsingle = multer.single("file");
 let upload = multer.array("file", 10);
 

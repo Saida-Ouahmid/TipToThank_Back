@@ -34,7 +34,7 @@ mongoose.connection.once("open", () => {
 });
 
 app.use("/", indexRouter);
-
+app.use("/restaurateur", restaurateurRouter);
 app.use("/serveur", serveurRouter);
 app.use("/client", clientRouter);
 
