@@ -7,7 +7,6 @@ var indexRouter = require("./routes/index");
 var restaurateurRouter = require("./routes/restaurateur");
 var serveurRouter = require("./routes/serveur");
 var clientRouter = require("./routes/client");
-var cors = require("./middlewares/cors");
 
 //import de mongoose
 const mongoose = require("mongoose");
