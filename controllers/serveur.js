@@ -65,6 +65,42 @@ const serveurController = {
     });
   },
 
+  paiement: (req, res, next) => {
+    stripe.paymentMethods.create(
+      {
+        type: "card",
+        card: {
+          number: req.body.card.number,
+          exp_month: req.body.card.exp_month,
+          exp_year: req.body.card.exp_year,
+          cvc: req.body.card.cvc,
+        },
+      },
+      function (err, paymentMethod) {
+        if (err) {
+          console.log(err);
+          res.status(500).json({
+            message: "Il y a un problème dans l'enregistrement de votre carte",
+          });
+          return;
+        }
+        req.user.paymentMethodId = paymentMethod.id;
+        req.user.save((error) => {
+          /* En cas d'erreur */
+          if (error) {
+            res.status(500).json({
+              message: "An error has occured",
+            });
+            return;
+          }
+
+          /* Réponse */
+          res.json({ message: "votre carte a bien été enregistrée" });
+        });
+      }
+    );
+  },
+
   inscription: (req, res, next) => {
     const emailVerif = RegExp("([A-z]|[0-9])+@([A-z]|[0-9])+.[A-z]{2,3}");
     const passwordVerif = RegExp(
@@ -292,6 +328,30 @@ const serveurController = {
         }
       }
     );
+  },
+
+  createSubscription: async (req, res) => {
+    try {
+      await stripe.paymentMethods.attach(req.body.paymentMethodId, {
+        customer: req.user.stripeId,
+      });
+    } catch (error) {
+      return res.status("402").send({ error: { message: error.message } });
+    }
+    await stripe.customers.update(req.user.stripeId, {
+      invoice_settings: {
+        default_payment_method: req.body.paymentMethodId,
+      },
+    });
+
+    // Create the subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: req.user.stripeId,
+      items: [{ price: "price_1HAxYZHoh2Vgz5QdzSq7HOHN" }],
+      expand: ["latest_invoice.payment_intent"],
+    });
+
+    res.send(subscription);
   },
 
   delete: (req, res, next) => {

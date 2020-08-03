@@ -34,5 +34,6 @@ router.delete("/delete", authentification, serveurController.delete);
 /* PUT abonnement edit.*/
 router.put("/id", authentification, multer, serveurController.getLogo);
 router.put("/iban", authentification, multer, serveurController.getLogo);
+router.post("/paiement", authentification, serveurController.paiement);
 
 module.exports = router;
