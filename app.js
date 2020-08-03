@@ -11,6 +11,8 @@ var cors = require("./middlewares/cors");
 
 //import de mongoose
 const mongoose = require("mongoose");
+//import de cors
+const cors = require("./middlewares/cors");
 
 var app = express();
 
@@ -20,6 +22,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors.handle);
+
 //data base connection
 mongoose.connect(
   "mongodb+srv://Bocal:cacahuete22%23@tiptothankdb.kqk7h.gcp.mongodb.net/dev?retryWrites=true&w=majority",
