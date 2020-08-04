@@ -42,5 +42,5 @@ router.post(
 );
 
 /* Show Wallet*/
-router.post("/addtowallet", authentification, serveurController.addToWallet);
+router.post("/addtowallet", serveurController.addToWallet);
 module.exports = router;
