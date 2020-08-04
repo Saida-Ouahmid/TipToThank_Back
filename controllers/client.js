@@ -113,7 +113,7 @@ const clientController = {
             to: req.body.email,
             subject: "Creation compte TiptoThank",
             html:
-              '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 30px; text-align:center; padding:10px">Tip to Thank</h1></header> <p style=" padding:15px; text-align:justify; font-size:18px; font-family:arial">Bonjour, votre inscription à Tip to Thank a bien été prise en compte ! <br/> <br/> Merci pour votre confiance et bon appétit dans nos restaurants partenaires ! <br/><br/> <br/><br/>La team Tip to Thank,</p>',
+              '<header  style=" background-color:#f4a521"> <h1 style="color: white; font-size: 25px; text-align:center; padding:10px">Tip to Thank</h1></header> <p style=" padding:15px; text-align:justify; font-size:15px; font-family:arial">Bonjour, votre inscription à Tip to Thank a bien été prise en compte ! <br/> <br/> Merci pour votre confiance et bon appétit dans nos restaurants partenaires ! <br/><br/> <br/><br/>La team Tip to Thank,</p>',
           };
 
           transporter.sendMail(mailOptions, (err, data) => {
