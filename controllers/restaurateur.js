@@ -250,7 +250,8 @@ const restaurateurController = {
           });
         } else {
           res.json({
-            message: "Good",
+            message:
+              "Merci pour votre inscription ! Un e-mail de confirmation vient de vous être envoyé.",
           });
         }
       });
@@ -548,7 +549,7 @@ const restaurateurController = {
         req.user.restaurantName +
         ' veut s\'affilier avec vous. <br/> Pour accepter la demande, cliquez sur le lien ci-dessous. <br/><br/>  <a  style=" margin-top:15px; text-decoration:none; color: #f4a521; font-weight:bold; font-size:23px; font-family:arial" href=' +
         link +
-        '>Confirmer</a> <footer style="background-color:#f4a521; padding:10px "></footer>',
+        '>Confirmer</a> </p><footer style="background-color:#f4a521; padding:10px "></footer>',
     };
     transporter.sendMail(mailOptions, (err, data) => {
       if (err) {
@@ -626,8 +627,7 @@ const restaurateurController = {
               });
               return;
             }
-
-            res.json(model);
+            res.redirect("http://localhost:3000/");
           });
         });
     });

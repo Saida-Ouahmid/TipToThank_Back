@@ -40,5 +40,11 @@ router.post(
   authentification,
   serveurController.createSubscription
 );
-
+router.delete(
+  "/deleteSubscription",
+  authentification,
+  serveurController.deleteSub
+);
+/* Show Wallet*/
+router.post("/addtowallet", authentification, serveurController.addToWallet);
 module.exports = router;
