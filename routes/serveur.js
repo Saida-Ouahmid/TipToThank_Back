@@ -41,4 +41,6 @@ router.post(
   serveurController.createSubscription
 );
 
+/* Show Wallet*/
+router.post("/addtowallet", authentification, serveurController.addToWallet);
 module.exports = router;
