@@ -279,7 +279,7 @@ const clientController = {
   getMenu: (req, res, next) => {
     Restaurateur.findOne(
       /*Get la photo du daily menu, accolade vide permet de récuper l'Id*/
-      {},
+      { _id: "5f29277ee5f4297fc0d9acc3" },
       {
         menu: 1,
       },
