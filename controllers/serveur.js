@@ -176,7 +176,7 @@ const serveurController = {
           });
         } else {
           res.json({
-            message: "Good",
+            message: "Votre compte à bien été crée",
           });
         }
       });
