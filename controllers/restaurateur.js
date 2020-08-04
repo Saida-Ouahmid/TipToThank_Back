@@ -627,7 +627,7 @@ const restaurateurController = {
               });
               return;
             }
-            res.redirect("http://localhost:3000/");
+            res.json({ message: "Votre abonnement est bien confirmé !" });
           });
         });
     });
