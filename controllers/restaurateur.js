@@ -386,7 +386,7 @@ const restaurateurController = {
       /*comparaison email user et base de donnée si match ou pas */
       Restaurateur.findOne({ email: req.body.email }, (err, data) => {
         if (!data) {
-          returnres
+          return res
             .status(401)
             .json({ message: "Identifiant et/ou Mot de passe incorrects" });
         }

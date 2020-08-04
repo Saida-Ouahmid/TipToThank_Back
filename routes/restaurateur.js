@@ -87,4 +87,5 @@ router.post(
 );
 
 router.post("/delete", auth, restaurateurController.unSubscription);
+
 module.exports = router;
