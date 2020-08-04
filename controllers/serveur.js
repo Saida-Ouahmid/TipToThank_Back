@@ -400,8 +400,8 @@ const serveurController = {
   },
   deleteWaiter: (req, res) => {
     Serveur.updateOne(
-      { _id: req.body._id },
-      { $set: { restaurantName: "" } },
+      { _id: req.user._id },
+      { $set: { restaurantName: { _id: null, name: null } } },
       (err, data) => {
         if (err) {
           res.status(500).end();
